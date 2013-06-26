@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title><%= title %></title>
+    <script src="info.js" type="text/javascript"></script>
+    <link rel="stylesheet" href=<%= stylesheet %>  type="text/css" media="screen , print">
+  </head>
+  <body>
+    <h1 > <%= header1%> </h1>
+
+    <h2><%= header2 %></h2>
+
+
+<table class="info" >
+  <thead>
+    <tr>
+      <%
+         col_names <- names(x)
+                      %>
+         <th>  </th>
+         <th> <%= col_names[[1]] %> </th>
+         <%
+            for(nm in col_names[-1]){
+            %>
+	 <th ><%= nm%></th>
+         <%
+            }
+            %>
+    </tr>
+  </thead>
+  <tbody>
+    <%
+       rnames <- row.names( x )
+	         for( i in 1:nrow(x) ){
+                 %>
+       <tr>
+         <td> <%=rnames[[i]]%> </td>
+         <td style="text-align: left;"> <%=x[[i, 1]]%> </td>
+         <%
+            for(nm in col_names[-1]){
+            div_id <- paste("div", nm, i, sep="_")
+                      td_id <- paste("td", nm, i, sep="_")
+                               if(is.null(attr(x[[i,nm]],"code"))){
+                               %>
+                      <td>
+                        <%= x[[i, nm]]%>
+                      </td>
+                      <%
+                         }else{
+                         %>
+	              <td id="<%=td_id%>"
+                          onmouseover="xstooltip_show('<%=div_id%>', '<%=td_id%>', 289, 49);"
+                          onmouseout="xstooltip_hide('<%=div_id%>');" >
+                        <div id="<%=div_id%>" class="xstooltip">
+                          <% if(!is.null(attr(x[[i,nm]],"doc"))){
+                             %>
+                          <%=
+                             paste(attr(x[[i,nm]],"doc"), collapse= "</br>")
+                             %>
+                          <hr>
+                          <% }
+                             %>
+                          <%
+                             highlight(parser.output =
+                                       parser(text = attr(x[[i,nm]],"code")),
+                                       renderer = renderer_html(document = F))
+                             %>
+                        </div>
+                        <%= x[[i, nm]]%>
+                      </td>
+                      <%
+                         }}
+                         %>
+       </tr>
+       <%
+	  }
+	  %>
+  </tbody>
+</table>
+
+  </body>
+</html>
+

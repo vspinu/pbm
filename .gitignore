@@ -1,0 +1,8 @@
+*~
+.Rhistory
+#*#
+*.lock
+*.out
+etc/jags*
+etc/refs*
+R/TAGS

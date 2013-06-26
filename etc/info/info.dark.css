@@ -1,0 +1,117 @@
+body {
+    color: #00ff00;
+    background-color: #141414;
+}
+
+a {
+  color: CornflowerBlue;
+  text-decoration: none;
+  border-bottom: 1px dashed darkblue;
+}
+
+h1,h2,h3, h4, h5 ,h6  {
+  font: normal bold Tahoma, Verdana, Arial;
+  color: DodgerBlue;
+}
+
+.xstooltip {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    font: normal 10pt sans-serif; /* monospace; */
+    padding: 3px;
+    text-align:left;
+    border: solid 1px;
+    background-color: #161616;
+}
+
+table.info thead {
+  font: normal 10pt Tahoma, Verdana, Arial;
+  font-weight: bold;
+}
+
+table.info th {
+  /* color: #800; */
+  border: 1px solid white;
+}
+
+table.info td {
+  font: normal 10pt Tahoma, Verdana, Arial;
+  text-align: center;
+}
+
+.link {
+  padding: 2px;
+  width: 600px;
+}
+.link:hover {
+  background: #eeb;
+}
+
+table.info .empty {
+  background: white;
+  border: 1px solid white;
+  cursor: default;
+}
+
+.comment {
+    /* font-lock-comment-face */
+    color: #ff7f24;
+}
+
+.number {
+    /* font-lock-constant-face */
+    color: #7fffd4;
+}
+.functioncall {
+    /* font-lock-function-name-face */
+    color: #00ffff;
+}
+.keyword {
+    /* font-lock-keyword-face */
+    font-weight: bolder ;
+    color: inherit;
+}
+.string {
+    /* font-lock-string-face */
+    color: #ffa07a;
+}
+.formalargs {
+    /* font-lock-type-face */
+    color: inherit; /* #98fb98; */
+}
+.argument{
+	color: inherit; /* #FF99FF; */
+}
+
+.roxygencomment{
+	color: #FF9999;
+}
+
+.eqformalargs{
+	color: white;
+}
+
+.assignement{
+	font-weight: bolder;
+	color: yellow;
+}
+
+.package{
+	color: #CCFF33;
+}
+
+.slot{
+	font-style:italic;
+}
+
+.symbol{
+	color: inherit;
+}
+
+.prompt{
+	color: yellow;
+}
+

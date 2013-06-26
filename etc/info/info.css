@@ -1,0 +1,126 @@
+
+.xstooltip {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    font: normal 10pt sans-serif; /* monospace; */
+    padding: 3px;
+    text-align:left;
+    border: solid 1px;
+    background-color: Bisque;
+}
+
+table.info thead {
+  font: normal 10pt Tahoma, Verdana, Arial;
+  background: #eee;
+  color: #666666;
+  font-weight: bold;
+  cursor: hand;
+}
+
+table.info th {
+  /* color: #800; */
+  border: 1px solid black;
+}
+table.info th:hover {
+  background: #eea;
+}
+
+table.info td {
+  font: normal 10pt Tahoma, Verdana, Arial;
+  text-align: right;
+}
+.link {
+  padding: 2px;
+  width: 600px;
+}
+.link:hover {
+  background: #eeb;
+}
+a {
+  color: darkblue;
+  text-decoration: none;
+  border-bottom: 1px dashed darkblue;
+}
+a:visited {
+  color: black;
+}
+a:hover {
+  border-bottom: none;
+}
+
+h1 {
+  font: normal bold 20pt Tahoma, Verdana, Arial;
+  color: #00a;
+  text-decoration: underline;
+}
+h2 {
+  font: normal bold 12pt Tahoma, Verdana, Arial;
+  color: #00a;
+}
+
+table.info .empty {
+  background: white;
+  border: 1px solid white;
+  cursor: default;
+}
+
+.number{
+	color: rgb(21,20,181)!imporant ;
+}
+
+.functioncall{
+	color: red !imporant;
+}
+
+.string{
+	color: rgb(153,153,255) ;
+}
+
+.keyword{
+	font-weight: bolder ;
+	color: black;
+}
+
+.argument{
+	color: rgb( 177,63,5) ;
+}
+
+.comment{
+	color: rgb( 204,204,204) ;
+}
+
+.roxygencomment{
+	color: rgb(0,151,255);
+}
+
+.formalargs{
+	color: rgb(18,182,18);
+}
+
+.eqformalargs{
+	color: rgb(18,182,18);
+}
+
+.assignement{
+	font-weight: bolder;
+	color: rgb(55,55,98);
+}
+
+.package{
+	color: rgb(150,182,37);
+}
+
+.slot{
+	font-style:italic;
+}
+
+.symbol{
+	color: black ;
+}
+
+.prompt{
+	color: black ;
+}
