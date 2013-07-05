@@ -198,14 +198,20 @@ pdGaNormal <- mixin(
     setForms = list(
         set.ll = expression({
             for(i in seq_len(size))
-                ll[[i]] <- dgamma(st[[i, 1L]],
+                ll[[i]] <- dgamma(st[[i, 2L]],
                                   shape = pv("alpha0")[i, ],
                                   rate = pv("beta0")[i, ], log=T) +
-                                      dnorm(st[[i, 2L]], mean = pv("mu0")[i, ],
-                                            sd = 1/sqrt(st[[i, 1L]]* pv("n0")[i, ]), log=T)
+                                      dnorm(st[[i, 1L]], mean = pv("mu0")[i, ],
+                                            sd = 1/sqrt(st[[i, 2L]]*pv("n0")[i, ]), log=T)
         }),
         setrand.st = expression(stop("GaNorm randset is not implemented"))),
     initForms = list(
+        init.R.build.nr_c_grs = expression({## nr elements in each group as given by child[["ixs"]][[1L]]
+            ## uses children! should be in very late stage! after M.build is done!
+            nr_c_grs <- c(tapply(get("st", child), child[["ixs"]][[1L]], length))
+            names(nr_c_grs) <- NULL}),
+        init.M.build.posterior = form(
+            posterior <- parents[[1]][["st"]]), 
         set.st0 = expression({
             sum_c_grs <- rowsum(TR(c(child[["st"]])), group=child[["ixs"]][[1L]])
             mean_c_grs <- c(sum_c_grs/nr_c_grs)
@@ -217,18 +223,13 @@ pdGaNormal <- mixin(
                                  mean_c_grs[child[["ixs"]][[1L]]])^2, child[["ixs"]][[1L]]) +
                  (nr_c_grs * pv("n0") * (mean_c_grs - pv("mu0"))^2)/(nr_c_grs + pv("n0")))/2
             for(i in seq_len(size)){
-                st[[i, 1L]] <- rgamma(1L, shape=posterior[[i, "alpha0"]], rate=posterior[[i, "beta0"]])
-                st[[i, 2L]] <- rnorm(1L, mean=posterior[[i, "mu0"]], sd=1/sqrt((st[[i, 1L]]*posterior[[i, "n0"]])))
-            }}),
-        init.R.build.nr_c_grs = expression({## nr elements in each group as given by child[["ixs"]][[1L]]
-            ## uses children! should be in very late stage! after M.build is done!
-            nr_c_grs <- c(tapply(get("st", child), child[["ixs"]][[1L]], length))
-            names(nr_c_grs) <- NULL}
-            ),
-        init.M.build.posterior = form(
-            posterior <- parents[[1]][["st"]]     ##<- matrix(1, nrow=dim(ll), ncol=4,
-            ## dimnames=list(NULL, c("mu0", "n0", "alpha0", "beta0"))))
-            )),
+                st[[i, 2L]] <- rgamma(1L,
+                                      shape=posterior[[i, "alpha0"]],
+                                      rate=posterior[[i, "beta0"]])
+                st[[i, 1L]] <- rnorm(1L,
+                                     mean=posterior[[i, "mu0"]],
+                                     sd=1/sqrt((st[[i, 2L]]*posterior[[i, "n0"]])))
+            }})),
     subtype = "GaNormal")
 
 PBM$initCells(defBC(type = "dganorm",
