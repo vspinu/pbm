@@ -21,7 +21,6 @@ setContextClass("PBM", cellClass="BC")
                   prototype$mirror <- "base"
                   on.exit(prototype$mirror <- cur_mir)
               }
-
               pbm <- callNextMethod(.Object, type = type, prototype = prototype, ...)
 
               pbm$evalq({
@@ -55,7 +54,21 @@ PBM$initFields(mirror = protoField(.field.current_mirror),
                ## mirrors_test = protoReadOnlyField("mirrors_test"),
                folds_names = protoReadOnlyField("folds_names"))
 
-PBM$initMethods(resetPC =
+PBM$initMethods(getLL =
+                function(sum = FALSE, mc = FALSE){
+                    if(mc){
+                        LL <- map_over_model_cells(.cells, function(cell){
+                            if(cell$do.mc_ll) rowSums(as.matrix(cell$mc_ll))
+                        })
+                        if(sum) rowSums(do.call(cbind, LL)) else LL
+                    }else{
+                        LL <- unlist(map_over_model_cells(.cells, function(cell){
+                            if(cell$do.ll) sum(cell$ll)
+                        }))
+                        if(sum) sum(LL) else LL
+                    }
+                }, 
+                resetPC =
                 function(){
                     map_over_model_cells(.cells, function(cell){
                         assign("._pc_done", FALSE, cell)
@@ -332,7 +345,10 @@ root$initForms(init = form(
 PBM$initCells(defBC(type = "hc", prototype="*",
                     ## do.mc_st=FALSE,
                     ## do.st=FALSE,
-                    setFields = list(do.update=FALSE,
+                    setFields = list(
+                        do.ll = FALSE,
+                        do.mc_ll = FALSE,
+                        do.update=FALSE,
                         do.pc_st = FALSE,
                         do.pc_ll = FALSE),
                     initForms = list(
@@ -372,6 +388,7 @@ PBM$initCells(defBC(type = "like", prototype="uc",
                     initFields = list(
                         adapt = protoField(.field.adapt),
                         scale = protoField(.field.scale),
+                        rejects = protoReadOnlyField("rej"), 
                         TR = function(x) x
                         ),
                     expr = expression({

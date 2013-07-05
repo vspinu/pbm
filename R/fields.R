@@ -162,6 +162,9 @@ You can control its size with LLDIM field.")
     ## API: lldim if not set means lldim == varsize (fixme: name it llcols)
     ## fixme: why .lldim is assigned, cannot do without?
     ## because distributions like Multivar sets it to 1
+    ## fixme: rename into llsize?
+    ## fixme: doesn't take effect if precedes var field assignment
+    ## fixme: lldim is not inherited (see log.dganorm)
     if(missing(arg)){
         if(length(out <- dim(ll)[-1]) > 0)
             out
@@ -172,15 +175,19 @@ You can control its size with LLDIM field.")
         if(arg > length(varsize))
             stop.pbm(sprintf("LLDIM (%s) cannot be bigger than varsize (%s)", arg, varsize))
         assign(".lldim", arg, .self)
-        assign("ll", array(-Inf, c(size, varsize[1:arg])), .self)
+        assign("ll", array(-Inf, c(size, arg)), .self)
     }
 
 .field.names <- function(arg){
     ## API: names is abstract fields derived from rownames(st)
+    ## fixme: if called before size or st fields, give error, order fields initialization somehow
     if(missing(arg)){
         rownames(st)
     }else{
-        eval(substitute({rownames(st) <- nm; names(ll) <- nm}, list(nm = arg)), .self)
+        eval(substitute({
+            rownames(st) <- nm
+            rownames(ll) <- nm
+        }, list(nm = arg)), .self)
         .self
     }}
 
@@ -359,7 +366,7 @@ You can control its size with LLDIM field.")
                 dim(scale) <- dim(st)
         else if(!(length(scale) == 1 || length(scale) == size))
             stop("SCALE parameters must be of length 1, ",
-                 length(ll), "(ll) or ", length(st), " (st)")
+                 length(ll), "(length(ll)) or ", size, " (size)")
         assign("scale", as.array(scale), .self)
     }
 }
