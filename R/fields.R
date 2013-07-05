@@ -364,3 +364,13 @@ You can control its size with LLDIM field.")
     }
 }
 
+
+.make_field_mc <- function(mcname){
+    protoField(eval(substitute(
+        function(x)
+        if(missing(x)){
+            pbmmc(drop(get(mcname, .self)))
+        }else{
+            stop(mcname, "is read only")
+        })))
+}

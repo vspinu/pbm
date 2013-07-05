@@ -49,13 +49,13 @@ M <- pbm("LogNormal",
                  hp_mulog = defP("hc",
                      var = c(mean = 0, tau = .00001))),
              taulog =
-             defP("LogNorm",
+             defP("dlnorm",
                   cix = 1, size = 1, scale = .1, 
                   hp_taulog = defP("hc",
                       var = c(meanlog = 0, taulog = .005)))))
 
 test_that("LogNormal with unknown MULOG & TAULOG works", {
-    update(M, nr_iter = 1500)
+    update(M, nr_iter = 3000)
 
     par(mfrow = c(1, 2))
     plot(M$mulog.$mc_st[-burnin,, ], type = "l")

@@ -15,30 +15,32 @@ adHST <- mixin(
     ## (12): 343-373. doi:10.1007/s11222-008-9110-y
     ## http://www.springerlink.com/content/979087678366r78v/.
     initFields = list(
-        ad_beta = 1, ## todo: make a check of beta > 0
-        ad_alpha = .5, ## todo: make a check for alpha \in (0, 1])
+        abeta = 1, ## todo: make a check of beta > 0
+        aalpha = .5, ## todo: make a check for alpha \in (0, 1])
         do.ad.group_scale = TRUE,
         do.mc_scale = FALSE,
-        mc_scale = array(double())), 
+        mc_scale = array(double()), 
+        sig_scale = 1), 
     initForms = list(
         init.M.build.ad = form(
             st = form({
-                ad_ix <- do.call(base::interaction,
+                aix <- do.call(base::interaction,
                                  c(lapply(names(parents), function(p) pix(, p)),
                                    list(drop = TRUE)))
-                ad_nr_gr_ix <- c(table(as.integer(ad_ix)))
+                anr_gr_ix <- c(table(as.integer(aix)))
                 e(set.ad.st)
             }),
             mu = form({
                 ## mu is never grouped
-                ad_mu <- array(0, dim = dim(st), dimnames = dimnames(st))
+                amu <- array(0, dim = dim(st), dimnames = dimnames(st))
             }),
             sigma = form({
-                ad_lambda <- 2.38^2/ncol(st) # = varsize
-                ad_sigma <- rep.int(scale^2L, length(st))
-                ad_offset <- (0.001/ncol(st))*ad_sigma
+                alambda <- 2.38^2/ncol(st) # = varsize
+                asigma <- rep.int(scale^2L, length(st))
+                aoffset <- (0.0001/ncol(st))*asigma
             })),
         init.R.build.ad = form(
+            rebuild_maybe = form(if(!exists("aix", inherits = F)) e(init.M.build.ad)), 
             mc = form({
                 if(do.mc_scale){
                     if(length(mc_scale) == 0L){
@@ -49,25 +51,25 @@ adHST <- mixin(
                     attr(mc_scale, "prev_size") <- ._prev_size
                 }})),
         set.ad = form(
-            st = form(ad_st <- TR(st)),
-            gamma = form(ad_gamma <- ad_beta/.N^ad_alpha),
+            st = form(ast <- TR(st)),
+            gamma = form(agamma <- abeta/.N^aalpha),
             mu = form({
-                ad_mu <- ad_mu + ad_gamma*(ad_st - ad_mu)
+                amu <- amu + agamma*(ast - amu)
             }),
             sigma = form({
-                ad_sigma <- ad_sigma + ad_gamma*(((ad_st - ad_mu)^2L) - ad_sigma)
+                asigma <- asigma + agamma*(((ast - amu)^2L) - asigma)
             }),
             scale = form({
                 scale <-
                     if(do.ad.group_scale)
-                        sqrt(rowsum(c(ad_lambda*ad_sigma + ad_offset), ad_ix)/ad_nr_gr_ix)[ad_ix]
+                        sqrt(rowsum(c((sig_scale*alambda)*asigma + aoffset), aix)/anr_gr_ix)[aix]
                     else
-                        sqrt(c(ad_lambda*ad_sigma + ad_offset))
+                        sqrt(c(alambda*asigma + aoffset))
             })),
         adapt = form({
             e(set.ad.st)
             e(set.ad.gamma)
-            e(set.ad.sigma) ## sigma should be first,  depends on previous ad_mu!!
+            e(set.ad.sigma) ## sigma should be first,  depends on previous amu!!
             e(set.ad.scale)
             e(set.ad.mu)
             if(do.mc_scale){

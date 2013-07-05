@@ -188,6 +188,7 @@ pdGaNormal <- mixin(
     setFields = list(
         var = c(mu=0, tau=1),
         parnames = c("mu0", "n0", "alpha0", "beta0"),
+        lldim = 1, 
         ## fixme: thisprotocol is old style
         protocol = list(
             parents = list(
@@ -240,6 +241,7 @@ PBM$initCells(defBC(type = "dganorm",
 ## fixme: this should rely on mixin inheritance rather than cell inheritance
 pdLogGaNormal <- mixin(setFields = list(
                            var = c( meanlog=0, taulog=1),
+                           lldim = 1L, 
                            TR=function(x) log(x)),
                        expr = expression({
                            protocol$rv <-list(dim = c(2L),

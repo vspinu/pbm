@@ -1,4 +1,3 @@
-## adapted from http://doingbayesiandataanalysis.blogspot.nl/2012/06/mixture-of-normal-distributions.html
 trueM <- c(100, 145)
 trueSD <- 15
 N <- 1000

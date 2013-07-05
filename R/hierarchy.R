@@ -2,7 +2,8 @@
 ## source("/home/vitoshka/Dropbox/works/R_dev/pbm/funcs.R")
 ## library(coda)
 ## library(Rgraphviz)
-library(protoClasses)
+## load_all("~/works/protoClasses/")
+source("~/works/pbm/R/utils.R")
 source("~/works/pbm/R/fields.R")
 source("~/works/pbm/R/sync.R")
 source("~/works/pbm/R/valibuild.R")
@@ -146,7 +147,11 @@ root$initFields(do.update = TRUE,
                 do.pc_ll = FALSE,
                 pc_ll_groups = protoField(.field.pc_ll_groups),
                 do.children.ll = TRUE,  ## every cell with children must do!!
-                ..ll_is_old.. = TRUE)
+                ..ll_is_old.. = TRUE, 
+                pc_st = array(double()), 
+                mc_st = array(double()), 
+                pc_ll = array(double()), 
+                mc_ll = array(double()))
 
 root$initFields(children = protoField(.field.children),
                 parents = protoField(.field.parents),
@@ -159,10 +164,10 @@ root$initFields(children = protoField(.field.children),
                 folds_factor = protoField(.field.folds_factor),
                 folds_names = protoField(.field.folds_names),
                 ## folds_fact = protoField(.field.folds_fact),
-                pc_st = array(double()),
-                mc_st = array(double()),
-                pc_ll = array(double()),
-                mc_ll = array(double()))
+                pc_st = .make_field_mc("pc_st"),
+                mc_st = .make_field_mc("mc_st"),
+                pc_ll = .make_field_mc("pc_ll"), 
+                mc_ll = .make_field_mc("mc_ll"))
 ## fld_train = protoField(.field.train),
 ## fld_predict = protoField(.field.fld_predict))
 
@@ -264,14 +269,17 @@ root$initForms(init = form(
                            mc_ll = form({
                                if(do.mc_ll){
                                    if(length(mc_ll) == 0L){
+                                       ## takes into account mc_ll_groups 
                                        mc_ll <- .initial_xx_ll("mc", .self, 0L)
                                    }
                                    .prev_size <- nrow(mc_ll)
-                                   mc_ll <- abind(mc_ll, array(NA_real_, dim = c(.nr_iter, dim(mc_ll)[ -1])), along = 1)
+                                   mc_ll <- abind(mc_ll, along = 1, 
+                                                  array(NA_real_,
+                                                        dim = c(.nr_iter, dim(mc_ll)[ -1])))
                                    attr(mc_ll, "prev_size") <- .prev_size
                                }}),
                            update_mc_ll = form(
-                               ## depends on mc_ll_groups settings
+                               ## takes into account mc_ll_groups 
                                update.main.mc_ll <- .gen_form_update.mc_ll(.self)),
                            mc_st = form({
                                if(do.mc_st){
@@ -524,3 +532,5 @@ PBM$initCells(defBC(type = "conj", prototype = "uc",
 
 
 source("~/works/pbm/R/distributions.R")
+source("~/works/pbm/R/adapt.R")
+

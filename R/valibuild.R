@@ -139,7 +139,7 @@ d_validate.ixs <- form({
         if(!is.language(ixs[[i]])){
             if(!identical(as.integer(sort(unique(ixs[[i]]))), 1:parents[[i]]$size))
                 stop.pbm("ixs[[", i, "]] must be in the range 1:", parents[[i]]$size, 
-                         " to agree with SIZE in parent '", i, "'")
+                         " to agree with SIZE (", parents[[i]]$size, ") in parent '", i, "'")
             else
                 if(length(ixs[[i]]) != length(ll))
                     stop.pbm(" length of ixs[[", i, "]] (", length(ixs[[i]]),

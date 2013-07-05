@@ -20,11 +20,9 @@ setMethod("update", "PBM",
               .cells@sims$thin <- as.integer(thin)
               nr_iter <- as.integer(nr_iter)
               if(append ||  .cells@sims$end == 0L){
-                  sims_in_mc <- .cells@sims$end - .cells@sims$start+1L
               }else{
                   .strip_mcs(.UP)  ## define the func <- todo:
                   .cells@sims$start <- .cells@sims$end+1L
-                  sims_in_mc <- 0L
               }
               assign(".nr_iter", nr_iter, envir = root_env) ## nee for build.mc_st
               assign(".thin", as.integer(thin), envir = root_env)
@@ -33,7 +31,6 @@ setMethod("update", "PBM",
                   .$.runEnds <- integer()
                   .cells@sims$end <- 0L
                   .cells@sims$start <- 1L
-                  sims_in_mc <- 0L
                   .initialize_M(model_cells)
                   ## .strip_mcs(.UP) init.M.build.mc_st and mc_ll do the job
               }
@@ -42,7 +39,7 @@ setMethod("update", "PBM",
               if(is_test) .$mirrors[[.curcells@train_mirror_name]] <- .cells
               else .$.cells <- .cells
               .initialize_R(model_cells)
-              iter_along <- seq_len(nr_iter) ## + sims_in_mc
+              iter_along <- seq_len(nr_iter)
               nr_BCs <- length(.$.MCs)
               iter_along_thin <- seq_len(thin-1)
               if (do.pr_bar){

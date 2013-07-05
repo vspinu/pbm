@@ -32,8 +32,8 @@ setMethod("initialize", "BC",
                           function(v, p){
                               if(missing(p)) e(vname[[v]])
                               else e(pname[[p]])
-                          }, list(vname = as.name(sprintf(".%s_v", cont_name)), 
-                                  pname = as.name(sprintf(".%s_p", cont_name)))))
+                          }, list(vname = as.name(".pix_v"), 
+                                  pname = as.name(".pix_p"))))
                   
                   pst <- function(p) e(.pst[[p]])
                   PST <- function(p) e(.PST[[p]])
