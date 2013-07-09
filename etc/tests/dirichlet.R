@@ -14,16 +14,16 @@ M <- pbm("CatDirichlet",
              hpD = defP("hc",
                cix = 1, var = apr))))
 
-M$D.$do.mc_st <- T
+M$D$do.mc_st <- T
 update(M, nr_iter = 1000)
-matplot(drop(M$D.$mc_st), type = "l")
+matplot(M$D.$mc_st, type = "l")
 
 test_that("CatDirichlet model returns correct posteriors",{
-          (post <- colMeans(drop(M$D.$mc_st)[-(1:100), ]))
+          post <- unname(colMeans(M$D.$mc_st[-(1:100), ]))
           actual <- tabulate(Y)
           actual <- actual/sum(actual)
           rbind(actual, post)
-          expect_close(post, tb, .003)
+          expect_close(post, actual, .003)
       })
 
 #### JAGS

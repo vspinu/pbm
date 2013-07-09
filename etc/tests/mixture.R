@@ -49,10 +49,10 @@ test_that("normal mixture works", {
     update(M, 1000)
 
     par(mfrow = c(2, 2))
-    matplot(drop(M$mu.$mc_st)[, ], type = "l")
-    matplot(drop(M$mu.$mc_st)[-burnin, ], type = "l")
-    matplot(drop(M$tau.$mc_st)[-burnin], type = "l")
-    matplot(drop(M$pr_clust.$mc_st)[], type = "l")
+    matplot(M$mu.$mc_st[, ], type = "l")
+    matplot(M$mu.$mc_st[-burnin, ], type = "l")
+    matplot(M$tau.$mc_st[-burnin, ], type = "l")
+    matplot(M$pr_clust.$mc_st[], type = "l")
 
     est <- sort(colMeans(drop(M$pr_clust$mc_st)[-burnin, ]))
     actual <- sort(table(trueCL)/N)

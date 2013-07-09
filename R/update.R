@@ -3,6 +3,7 @@
 setMethod("update", "PBM",
           function(object, nr_iter=10, thin=1, append=T, reinit = F, do.pr_bar=TRUE, ...){
               . <- as.environment(object)
+              nrll<<-0
               library(abind)
               ## get current mirror
               .curcells <- get(".cells", envir = object)
@@ -23,9 +24,9 @@ setMethod("update", "PBM",
               
               .cells@sims$thin <- as.integer(thin)
               nr_iter <- as.integer(nr_iter)
-              if(append ||  .cells@sims$end == 0L){
+              if(append || .cells@sims$end == 0L){
               }else{
-                  .strip_mcs(.UP)  ## define the func <- todo:
+                  .strip_mcs(model_cells)  ## not only .UP
                   .cells@sims$start <- .cells@sims$end+1L
               }
               assign(".nr_iter", nr_iter, envir = root_env) ## nee for build.mc_st
@@ -36,7 +37,6 @@ setMethod("update", "PBM",
                   .cells@sims$end <- 0L
                   .cells@sims$start <- 1L
                   .initialize_M(model_cells)
-                  ## .strip_mcs(.UP) init.M.build.mc_st and mc_ll do the job
               }
               .cells@sims$end <- .cells@sims$end + nr_iter ## available for R.builders!!
               ## so ugly
@@ -61,7 +61,8 @@ setMethod("update", "PBM",
                   .N <- .N + 1L
                   .Internal(assign(".N", .N, root_env, FALSE))
 
-                  for(bc in .UP) evalq({e(set.ll_is_old);e(set.st_is_old)}, envir = bc)
+                  ## for(bc in .UP) evalq({e(set.ll_is_old);e(set.st_is_old)}, envir = bc)
+                  for(bc in model_cells) evalq({e(set.st_is_old)}, envir = bc)
                   for(bc in .UP) evalq(e(UPDATE), envir=bc)
                   
                   for(.T in iter_along_thin){
@@ -69,7 +70,7 @@ setMethod("update", "PBM",
                       .N <- .N + 1L
                       .Internal(assign(".N", .N, root_env, FALSE))
                       
-                      for(bc in .UP) evalq({e(set.ll_is_old);e(set.st_is_old)}, envir = bc)
+                      for(bc in model_cells) evalq({e(set.st_is_old)}, envir = bc)
                       for(bc in .UP) evalq(e(UPDATE), envir=bc)
                   }
                   if(do.pr_bar) setTxtProgressBar(pb = .pb, value = .I)

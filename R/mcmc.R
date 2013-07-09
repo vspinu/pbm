@@ -1,4 +1,3 @@
-library(coda)
 ### extension of coda mcmc for 2D variables
 pbmmc <- function (data = NA, start = 1, end = NULL, thin = 1) 
 {
@@ -24,10 +23,8 @@ pbmmc <- function (data = NA, start = 1, end = NULL, thin = 1)
             if(is.null(end))
                 end <- orig.dim[[1]]
         } # else, guaranted to be a matrix
-    }else{
-        if(is.null(end))
-            end <- length(data)
     }
+    if(is.null(end)) end <- length(data)
     data <- coda::mcmc(data, start = start, end = end, thin = thin)
     class(data) <- c(pbm_class, class(data))
     data

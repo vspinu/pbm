@@ -121,6 +121,7 @@ PBM$initCells(defBC(type = "dcat",
 pdNormal <- mixin(
     setForms = list(
         set.ll = form(
+            nrll <<- nrll + 1L, 
             ll[] <- dnorm(st,
                           mean = PV("mean"),
                           sd=1/sqrt(PV("tau")),
