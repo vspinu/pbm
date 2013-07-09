@@ -76,6 +76,6 @@ adHST <- mixin(
                 if(do.mc_scale) mc_scale[.I + attr(mc_scale, 'prev_size'),, ] <- c(scale)
             }
         })),
-    parent_mixins = adRoot,
+    parentMixins = adRoot,
     subtype = "HST")
 

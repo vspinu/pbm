@@ -376,8 +376,21 @@ You can control its size with LLDIM field.")
     protoField(eval(substitute(
         function(x)
         if(missing(x)){
-            pbmmc(drop(get(mcname, .self)))
+            pbmmc(get(mcname, .self))
         }else{
             stop(mcname, "is read only")
         })))
+}
+
+
+.field.tr <- function(x){
+        if(missing(x))
+            get("tr", .self)
+        else{
+            if(!is(x, "protoTransform"))
+                stop("tr fields should be of class 'protoTransform'; supplied ", class(x))
+            assign(".subtypes", c(x@name, .subtypes))
+            assign("tr", x, .self)
+            .self
+    }
 }

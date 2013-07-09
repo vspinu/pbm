@@ -1,5 +1,6 @@
+library(coda)
 ### extension of coda mcmc for 2D variables
-pbmmc <- function (data = NA, start = 1, end = numeric(0), thin = 1) 
+pbmmc <- function (data = NA, start = 1, end = NULL, thin = 1) 
 {
     pbm_class <- "pbmmc"
     if (is.array(data)) {
@@ -20,8 +21,12 @@ pbmmc <- function (data = NA, start = 1, end = numeric(0), thin = 1)
             colnames(data) <- paste0(vnames, cnames)
             attr(data, "orig.dim") <- orig.dim
             attr(data, "orig.dn") <- orig.dn
-            end <- orig.dim[[1]]
+            if(is.null(end))
+                end <- orig.dim[[1]]
         } # else, guaranted to be a matrix
+    }else{
+        if(is.null(end))
+            end <- length(data)
     }
     data <- coda::mcmc(data, start = start, end = end, thin = thin)
     class(data) <- c(pbm_class, class(data))

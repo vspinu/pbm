@@ -13,10 +13,14 @@ setMethod("update", "PBM",
                   else .curcells
               root_env <- as.environment(get("*", .cells))
               model_cells <- .get_model_cells(.cells)
-              to_iterate <- sapply(model_cells, function(bc){
-                  bc$do.update
-              })
-              .UP <- model_cells[rev(which(to_iterate))]
+
+              up_names <- .get_update_cnames(model_cells)
+              .UP <- model_cells[up_names]
+              message("Updating: ", paste(gsub("\\..*$", "", up_names), collapse = " -> "))
+
+              which_up <- names(model_cells) %in% up_names
+              model_cells <- c(model_cells[which_up], model_cells[!which_up])
+              
               .cells@sims$thin <- as.integer(thin)
               nr_iter <- as.integer(nr_iter)
               if(append ||  .cells@sims$end == 0L){
@@ -56,13 +60,17 @@ setMethod("update", "PBM",
                   .Internal(assign(".T", 0L, root_env, FALSE))
                   .N <- .N + 1L
                   .Internal(assign(".N", .N, root_env, FALSE))
-                  for(bc in .UP)
-                      evalq(e(update), envir=bc)
+
+                  for(bc in .UP) evalq({e(set.ll_is_old);e(set.st_is_old)}, envir = bc)
+                  for(bc in .UP) evalq(e(UPDATE), envir=bc)
+                  
                   for(.T in iter_along_thin){
                       .Internal(assign(".T", .T, root_env, FALSE))
                       .N <- .N + 1L
                       .Internal(assign(".N", .N, root_env, FALSE))
-                      for(bc in .UP) evalq(e(update), envir=bc)
+                      
+                      for(bc in .UP) evalq({e(set.ll_is_old);e(set.st_is_old)}, envir = bc)
+                      for(bc in .UP) evalq(e(UPDATE), envir=bc)
                   }
                   if(do.pr_bar) setTxtProgressBar(pb = .pb, value = .I)
               }
@@ -81,24 +89,51 @@ setMethod("update", "PBM",
               }
           })
 
-.initialize_M <- function(mCells, force = TRUE){
+.initialize_M <- function(mCells, force = FALSE){
     if(is(mCells, "BC"))
         mCells <- list(mCells)
-    lapply(mCells, function(bc){
-        if(force || !get("is.initialised.M", bc))
+    .local <- function(bc){
+        if(force || !get("..M.init.done..", bc)){
+            lapply(bc$parents, .local) ## make sure parents are initialized
             eval(bc$init.M, envir=bc)
-        bc$evalq(is.initialised.M <- TRUE)
-    })
+            bc$evalq(..M.init.done.. <- TRUE)
+        }
+    }
+    lapply(mCells, .local)
+    lapply(mCells, function(bc) bc$evalq(..M.init.done.. <- FALSE)) ## for next round
 }
 
-.initialize_R <- function(mCells){
+.initialize_R <- function(mCells, force = FALSE){
     if(is(mCells, "BC"))
         mCells <- list(mCells)
-    lapply(mCells, function(bc){
-        eval(bc$init.R, envir=bc)
-        bc$evalq(is.initialised.R <- TRUE)
-        ## if(bc$do.expand.ue_UPDATE && bc$do.update && exists("ue_UPDATE", envir=bc))
-        ##   bc[["ue_UPDATE"]] <- expand.e(bc$ue_UPDATE, bc)
-    })
+    .local <- function(bc){
+        if(force || !get("..R.init.done..", bc)){
+            lapply(bc$parents, .local) ## make sure parents are initialized
+            eval(bc$init.R, envir=bc)
+            bc$evalq(..R.init.done.. <- TRUE)
+        }
+    }
+    lapply(mCells, .local)
+    lapply(mCells, function(bc) bc$evalq(..R.init.done.. <- FALSE)) ## for next round
 }
 
+.get_update_cnames <- function(model_cells){
+    ## sort in hp-> DATA order,  DC cells are updated the last
+    .get_cell_chain <- function(cell){
+        chs <- cell[["children"]]
+        out <- lapply(chs,  function(x) if(x$do.update) .getType(x))
+        c(out, lapply(chs, .get_cell_chain))
+    }
+    HCs <- model_cells[sapply(model_cells, protoIs, "hc.*")]
+    unames <- unlist(lapply(HCs, .get_cell_chain), use.names = F)
+    unames <- unames[!duplicated(unames)]
+    if(length(td <- setdiff(unames, names(model_cells))))
+        stop("oups, non model cells are reachable from hyper cells:",
+             paste(td, sep = ", "))
+
+    dnames <- names(model_cells[sapply(model_cells, protoIs, "dc.*")])
+
+    which_dc <- unames %in% dnames
+    unames <- c(unames[!which_dc], unames[which_dc])
+    unames
+}

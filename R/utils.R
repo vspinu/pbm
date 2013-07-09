@@ -150,7 +150,7 @@ Did you specify cpars in defP?", length(pars), allsize))
                         if(warned)
                             cat(sprintf("   setting '%s:%s' ---> '%s:%s'\n",
                                         .getType(.self, fullName = F), par, pname, par))
-                        else warn.pbm(sprintf("empty parent varnames detected,
+                        else warn.pbm(sprintf("Empty parent varnames detected:
    setting '%s:%s' ---> '%s:%s'  ", .getType(.self, fullName = F), par, pname, par))
                         warned <- TRUE
                         var_p <- var_p[-which_var]
@@ -160,7 +160,7 @@ Did you specify cpars in defP?", length(pars), allsize))
                             next ## fixme: happens when child has more parameters than this parent
                         pname <- var_p[[reparam_ix]]
                         new_par <- names(var_p)[[reparam_ix]]
-                        warn.pbm(sprintf("parameter '%s' not found in parents' varnames,
+                        warn.pbm(sprintf("Parameter '%s' not found in parents' varnames,
    matching '%s:%s' ---> '%s:%s'  ", par, .getType(.self, fullName = F), par, pname, new_par))
                         par <- new_par
                         reparam_ix <- reparam_ix + 1L

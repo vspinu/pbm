@@ -42,7 +42,7 @@ pdDirichlet <- mixin(
         ##         ._curix <- ixs[[1L]] == i
         ##         ll[._curix] <- dirichlet_log(st[._curix], pv("theta")[i, ])
         ##     }}),
-        setrand.st = form(
+        set.rand.st = form(
             st[] <- dirichlet_rng(size, PV("theta"))
             )),
     initForms = list(
@@ -55,7 +55,7 @@ pdDirichlet <- mixin(
                 stop.pbm(sprintf("varsize of the parent (%s) should be equal to varsize (%s) in Dirichlet cell",
                                  parents[[1]][["varsize"]], varsize))
             })),
-    parent_mixins = pdMultivar,
+    parentMixins = pdMultivar,
     subtype = "Dirichlet")
 
 pdDirichlet_conj <- mixin(
@@ -70,7 +70,7 @@ pdDirichlet_conj <- mixin(
         init.M.validate.child_type = form(
             if(!protoIs(child, "Categorical"))
             stop.pbm("Child of '", .type, "' should be of type 'Categorical'"))),
-    parent_mixins = pdDirichlet,
+    parentMixins = pdDirichlet,
     subtype = "conj")
 
 PBM$initCells(defBC(type = "ddirich",
@@ -87,7 +87,7 @@ pdCategorical <- mixin(
             ## tothink: wouldn't be more convenient to parametrize in terms of log?
             ll[] <- log(pv("P")[cbind(pix("P"), c(st))]) # matrix indexing
         }),
-        setrand.st = form(
+        set.rand.st = form(
             for(i in seq_along(levels(ixs[[1L]][[1L]]))){
                 st[ixs[[1]] == i] <-
                     sample(1:N[i], size, replace = TRUE,
@@ -125,7 +125,7 @@ pdNormal <- mixin(
                           mean = PV("mean"),
                           sd=1/sqrt(PV("tau")),
                           log=TRUE)),
-        setrand.st = form(
+        set.rand.st = form(
             st[] <- rnorm(size,
                           mean = PV("mean"), 
                           sd = 1/sqrt(PV("tau"))))),
@@ -134,7 +134,7 @@ pdNormal <- mixin(
     subtype = "Normal")
 
 PBM$initCells(defBC(type = "dnorm",
-                    prototype = "norm.MHrw.like.uc",
+                    prototype = "norm.MHrw.acrej.uc",
                     distr = pdNormal))
 
 
@@ -147,7 +147,7 @@ pdGamma <- mixin(
                            shape = PV("shape"), 
                            rate = PV("rate"), 
                            log = TRUE)),
-        setrand.st = form(
+        set.rand.st = form(
             st[] <- rgamma(length(st),
                            shape = PV("shape"), 
                            rate = PV("rate")))), 
@@ -156,7 +156,7 @@ pdGamma <- mixin(
     subtype = "Gamma")
 
 PBM$initCells(defBC(type = "dgamma",
-                    prototype = "lnorm.MHrw.like.uc",
+                    prototype = "lnorm.MHrw.acrej.uc",
                     distr = pdGamma))
 
 
@@ -164,11 +164,12 @@ PBM$initCells(defBC(type = "dgamma",
 pdLogNormal <- mixin(
     setForms = list(
         set.ll = form(
+            nrll <<- nrll + 1L, 
             ll[] <- dlnorm(st,
                            meanlog = PV("meanlog"),
                            sdlog=1/sqrt(PV("taulog")),
                            log=TRUE)),
-        setrand.st = quote(
+        set.rand.st = quote(
             st[] <- rlnorm(length(st),
                            meanlog = PV("meanlog"),
                            sdlog = 1/sqrt(PV("taulog"))))),
@@ -177,14 +178,12 @@ pdLogNormal <- mixin(
     subtype = "LogNormal")
 
 PBM$initCells(defBC(type = "dlnorm",
-                    prototype = "lnorm.MHrw.like.uc",
+                    prototype = "lnorm.MHrw.acrej.uc",
                     distr = pdLogNormal))
-
 
 
 ### GaNorm conjugate
 pdGaNormal <- mixin(
-    initFields = list(TR = function(x) x),
     setFields = list(
         var = c(mu=0, tau=1),
         parnames = c("mu0", "n0", "alpha0", "beta0"),
@@ -196,7 +195,7 @@ pdGaNormal <- mixin(
                     varsize = 4L,
                     varnames = c("mu0", "n0", "alpha0", "beta0"))))),
     setForms = list(
-        set.ll = expression({
+        set.ll = form({
             for(i in seq_len(size))
                 ll[[i]] <- dgamma(st[[i, 2L]],
                                   shape = pv("alpha0")[i, ],
@@ -204,15 +203,15 @@ pdGaNormal <- mixin(
                                       dnorm(st[[i, 1L]], mean = pv("mu0")[i, ],
                                             sd = 1/sqrt(st[[i, 2L]]*pv("n0")[i, ]), log=T)
         }),
-        setrand.st = expression(stop("GaNorm randset is not implemented"))),
+        set.rand.st = form(stop("GaNorm randset is not implemented"))),
     initForms = list(
-        init.R.build.nr_c_grs = expression({## nr elements in each group as given by child[["ixs"]][[1L]]
+        init.R.build.nr_c_grs = form({## nr elements in each group as given by child[["ixs"]][[1L]]
             ## uses children! should be in very late stage! after M.build is done!
             nr_c_grs <- c(tapply(get("st", child), child[["ixs"]][[1L]], length))
             names(nr_c_grs) <- NULL}),
         init.M.build.posterior = form(
             posterior <- parents[[1]][["st"]]), 
-        set.st0 = expression({
+        set.st = form({
             sum_c_grs <- rowsum(TR(c(child[["st"]])), group=child[["ixs"]][[1L]])
             mean_c_grs <- c(sum_c_grs/nr_c_grs)
             posterior[, "mu0"] <- (sum_c_grs + pv("mu0") * pv("n0"))/ (nr_c_grs + pv("n0"))
@@ -229,7 +228,15 @@ pdGaNormal <- mixin(
                 st[[i, 1L]] <- rnorm(1L,
                                      mean=posterior[[i, "mu0"]],
                                      sd=1/sqrt((st[[i, 2L]]*posterior[[i, "n0"]])))
-            }})),
+            }}), 
+        init.R.validate.child = form(
+            if(length(children) != 1L){
+                stop.pbm("conjugate GaNormal cell accepts only one child; supplied ", length(children))
+            }, 
+            if(!protoIs(children[[1L]], "dnorm")){
+                stop.pbm("child of conjugate GaNormal cell must be of type dnorm")
+            })),
+    expr = expression(chITR <- identity), 
     subtype = "GaNormal")
 
 PBM$initCells(defBC(type = "dganorm",
@@ -242,9 +249,9 @@ PBM$initCells(defBC(type = "dganorm",
 ## fixme: this should rely on mixin inheritance rather than cell inheritance
 pdLogGaNormal <- mixin(setFields = list(
                            var = c( meanlog=0, taulog=1),
-                           lldim = 1L, 
-                           TR=function(x) log(x)),
+                           lldim = 1L), 
                        expr = expression({
+                           chITR <- log
                            protocol$rv <-list(dim = c(2L),
                                               dimnames=list(c("taulog", "meanlog")))  #1L, 2L
                            protocol$st <- list(dim = c(NA, 2L),
@@ -259,14 +266,14 @@ PBM$initCells(defBC(type = "log",
 
 
 ## ###_    * Unif
-## PBM$initCells(defBC(type = "Unif", prototype = "unif.MHrw.like.uc",
+## PBM$initCells(defBC(type = "Unif", prototype = "unif.MHrw.acrej.uc",
 ##                     setForms = list(
 ##                         set.ll = quote(
 ##                             ll[] <- dunif(st,
 ##                                           min=parents[[1]][["st"]][, "min"][ix0],
 ##                                           max=parents[[1]][["st"]][, "max"][ix0],
 ##                                           log=TRUE)),
-##                         setrand.st = quote(
+##                         set.rand.st = quote(
 ##                             st[] <- runif(length(st),
 ##                                           min=parents[[1]][["st"]][, "min"][ix0],
 ##                                           max=parents[[1]][["st"]][, "max"][ix0]))),

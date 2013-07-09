@@ -214,15 +214,7 @@ setMethod("installBinding", "BC",
               if(length(parents <- cellEnv[["parents"]])){
                   ## replacing parents if needed
                   for (i in seq_along(parents)){
-                      ## i_type <- .getType(parents[[i]])
-                      ## if(exists(i_type, envir = container, inher = FALSE)){
-                      ##     ## if exists in container, use it
-                      ##     cellEnv[["parents"]][[i]] <- get(i_type, envir = container)
-                      ## }else{
-                      ## else, install a new cell
                       cellEnv[["parents"]][[i]] <- installBinding(parents[[i]], container = container)
-                      ## }
-                      ## parent's child points to right object (cell)'
                       .synchronize_parent(cell, cellEnv[["parents"]][[i]])
                   }
                   assign("parent", cellEnv[["parents"]][[1L]], envir = cellEnv)
