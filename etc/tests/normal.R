@@ -10,7 +10,7 @@ burnin <- 1:500
 
 ## KNOWN TAU
 M <- pbm("NORMAL",
-         DATA = defBC("dc.", distr = pdNormal, 
+         DATA = defBC("dc.", mixin = pdNormal, 
              st = Y, 
              mu = defP("dnorm",
                  cix = 1, size = 1, scale = .1, 
@@ -29,7 +29,7 @@ test_that("NORMAL with know TAU gives correct estimates",{
 
 ## KNOWN MU
 M <- pbm("NORMAL",
-         DATA = defBC("dc.", distr = pdNormal, st = Y,
+         DATA = defBC("dc.", mixin = pdNormal, st = Y,
              mu =
              defP("hc", cix = 1, st = mu),
              tau =
@@ -48,7 +48,7 @@ test_that("NORMAL with know MU gives correct estimates",{
 
 ## UNKNOWN MU, TAU
 M <- pbm("NORMAL",
-         DATA = defBC("dc.", distr = pdNormal, 
+         DATA = defBC("dc.", mixin = pdNormal, 
              st = Y, 
              mu = defP("dnorm",
                  cix = 1, size = 1, scale = .1, 

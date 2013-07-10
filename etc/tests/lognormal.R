@@ -10,7 +10,7 @@ par(mfrow = c(1, 1))
 
 ## KNOWN taulog
 M <- pbm("LogNormal",
-         DATA = defBC("dc.", distr = pdLogNormal, 
+         DATA = defBC("dc.", mixin = pdLogNormal, 
              st = Y, 
              mulog = defP("dnorm",
                  cix = 1, size = 1, scale = .5, 
@@ -28,7 +28,7 @@ test_that("LogNormal with known TAULOG works", {
 
 ## KNOWN mulog
 M1 <- pbm("LogNormal",
-         DATA = defBC("dc", distr = pdLogNormal,
+         DATA = defBC("dc", mixin = pdLogNormal,
              st = Y,
              mulog = defP("hc", cix = 1, st = mulog),
              taulog = defP("dlnorm", do.mc_ll = T, 
@@ -44,9 +44,9 @@ test_that("LogNormal with known MULOG works", {
 })
 
 
-## KNOWN mulog, with tranform
+## KNOWN mulog, with tranform cell
 M2 <- pbm("LogNormal",
-         DATA = defBC("dc.", distr = pdLogNormal,
+         DATA = defBC("dc.", mixin = pdLogNormal,
              st = Y,
              mulog = defP("hc", cix = 1, st = mulog),
              taulog = defP("tr", tr = tExp, do.mc_ll = T, 
@@ -95,7 +95,7 @@ test_that("M1 (lnorm) and M2 (exp tr) give similar results", {
 
 ## UNKNOWN mulog, taulog
 M <- pbm("LogNormal",
-         DATA = defBC("dc.", distr = pdLogNormal, 
+         DATA = defBC("dc.", mixin = pdLogNormal, 
              st = Y, 
              mulog = defP("dnorm",
                  cix = 1, size = 1, scale = .1, 

@@ -269,8 +269,8 @@ setMethod("clone", "PBM",
               y
           })
 
-defP <- function(prototype = NULL, ...,
-                 cpars = c(), cix=NULL, cix_dim=NULL, cell=NULL){
+defP <- function(prototype = NULL, ..., cpars = c(), cix=NULL,
+                 cix_dim=NULL, cell=NULL, mixin = NULL){
     ## API: cix can be an index, or form, in latter case it will be assigned as pix.pname
     ## Just like defBC but allows for direct specification of the cell (either
     ## as character or BC)
@@ -280,7 +280,7 @@ defP <- function(prototype = NULL, ...,
         else # ignoring ...
             parent <- cell
     else # ignoring cell
-        parent <- defBC(prototype = prototype, ...)
+        parent <- defBC(prototype = prototype, mixin = mixin, ...)
     new("parentDefinition", list(parent = parent, cpars = cpars,
                                  cix=cix, cix_dim=cix_dim))
 }
@@ -294,7 +294,7 @@ defP <- function(prototype = NULL, ...,
 ## installBinding_BC ->
 ##    (-> installCellInContainer)
 
-defBC <- function(prototype, ..., distr = NULL, var = NULL, varnames = NULL,
+defBC <- function(prototype, ..., mixin = NULL, var = NULL, varnames = NULL,
                   varsize = NULL, size = NULL, st = NULL, lldim = NULL, parents
                   = list(), children = list(), type = "--", initFields = list(),
                   initForms = list(), initMethods = list(), setFields = list(),
@@ -321,7 +321,8 @@ defBC <- function(prototype, ..., distr = NULL, var = NULL, varnames = NULL,
     }
     dots[names == "_to_remove_"] <- NULL
 
-    setFields <- c(list(var = var, varsize = varsize, varnames = varnames, size = size,
+    setFields <- c(list(var = var, varsize = varsize,
+                        varnames = varnames, size = size,
                         st = st, lldim = lldim) , dots, setFields)
 
     nulls <- sapply(setFields, is.null)

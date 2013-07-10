@@ -8,7 +8,7 @@ burnin <- 1:500
 hpDir = rep.int(.0001, K)
 
 M <- pbm("NMix",
-         D = defBC("dc.", distr = pdNormal, 
+         D = defBC("dc.", mixin = pdNormal, 
              st = Y, 
              mu = defP("dnorm",
                  cix = quote(pst("clust")),

@@ -75,7 +75,7 @@ pdDirichlet_conj <- mixin(
 
 PBM$initCells(defBC(type = "ddirich",
                     prototype = "conj.uc",
-                    distr = pdDirichlet_conj))
+                    mixin = pdDirichlet_conj))
 
 
 ### Categorical
@@ -95,7 +95,7 @@ pdCategorical <- mixin(
             })),
     initForms = list(
         ## FIXME: TODO: add setFormMaybe to handle cases when parent forms are
-        ## set in mixins. Or (better?) make setForms install forms only if
+        ## set in mixin. Or (better?) make setForms install forms only if
         ## already installed, with no error!
         init.R.build_min_max = form({
             min <- rep_len(1L, length(st))
@@ -114,7 +114,7 @@ pdCategorical <- mixin(
 
 PBM$initCells(defBC(type = "dcat",
                     prototype = "discr.unif",
-                    distr = pdCategorical))
+                    mixin = pdCategorical))
 
 
 ### Normal
@@ -136,7 +136,7 @@ pdNormal <- mixin(
 
 PBM$initCells(defBC(type = "dnorm",
                     prototype = "norm.MHrw.acrej.uc",
-                    distr = pdNormal))
+                    mixin = pdNormal))
 
 
 
@@ -158,7 +158,7 @@ pdGamma <- mixin(
 
 PBM$initCells(defBC(type = "dgamma",
                     prototype = "lnorm.MHrw.acrej.uc",
-                    distr = pdGamma))
+                    mixin = pdGamma))
 
 
 ###_ LogNorm
@@ -180,7 +180,7 @@ pdLogNormal <- mixin(
 
 PBM$initCells(defBC(type = "dlnorm",
                     prototype = "lnorm.MHrw.acrej.uc",
-                    distr = pdLogNormal))
+                    mixin = pdLogNormal))
 
 
 ### GaNorm conjugate
@@ -242,7 +242,7 @@ pdGaNormal <- mixin(
 
 PBM$initCells(defBC(type = "dganorm",
                     prototype = "conj.uc",
-                    distr = pdGaNormal))
+                    mixin = pdGaNormal))
 
 
 
@@ -262,7 +262,7 @@ pdLogGaNormal <- mixin(setFields = list(
 
 PBM$initCells(defBC(type = "log",
                     prototype = "dganorm",
-                    distr = pdLogGaNormal))
+                    mixin = pdLogGaNormal))
 
 
 
