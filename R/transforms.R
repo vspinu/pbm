@@ -15,13 +15,69 @@ protoTransform <- function(name = "identity",
 
 tIdentity <- protoTransform()
 
-tLog <- protoTransform("log",
+tLog <- protoTransform("tLog",
                        TR = log,
                        ITR = exp,
                        LL = function(y) y) ## log(exp(y))
 
-tExp <- protoTransform("exp",
+tExp <- protoTransform("tExp",
                        TR = exp,
                        ITR = log,
                        LL = function(y) -log(y))
+
+trRoot <- mixin(
+    initFields = list(
+        tr = tIdentity, 
+        st = protoField(
+            doc = "Call next method to retrive ST and then apply the transfrom.",
+            function(arg){
+                if(missing(arg))
+                    tr@TR(nextProtoField("st")())
+                else
+                    nextProtoField("st")(tr@ITR(arg))
+            }),
+        mc_st = protoField(
+            doc = "Call next method to retrive MC_ST and then apply the transfrom.",
+            function(arg){
+                tr@TR(nextProtoField("mc_st")(arg)) ## mc_st is readonly
+            }),
+        st = protoField(
+            doc = "Call next method to retrive ST and then apply the transfrom.",
+            function(arg){
+                if(missing(arg))
+                    tr@TR(nextProtoField("st")())
+                else
+                    nextProtoField("st")(tr@ITR(arg))
+            }),
+        mc_st = protoField(
+            doc = "Call next method to retrive MC_ST and then apply the transfrom.",
+            function(arg){
+                tr@TR(nextProtoField("mc_st")(arg))
+            })),
+    initForms = list(
+        init.R.build.ll_tr = form(
+            if(!exists("ll_tr", inherits = F) || !identical(dim(ll), dim(ll_tr))){
+                ll_tr <- array(0, dim = dim(ll), dimnames = dimnames(ll))
+            }), 
+        update.ll.ll_tr = form(
+            if(do.ll_tr){
+                ## needed for DIC but not for MHRW fixme: how to cache nicely?
+                ## Both st method and ll_tr form apply the transformation. May
+                ## be set.st.hook?
+                ll_tr[] <- tr@LL(tr@TR(st))
+            })))
+
+trLog <- mixin(
+    setFields = list(tr = tLog),
+    parentMixins = trRoot, 
+    subtype = "trLog")
+
+trExp <- mixin(
+    setFields = list(tr = tExp),
+    parentMixins = trRoot, 
+    subtype = "trExp")
+        
+        
+        
+
 

@@ -1,14 +1,34 @@
 ### HC
 PBM$initCells(defBC(type = "hc", prototype="*",
-                    ## do.mc_st=FALSE,
-                    ## do.st=FALSE,
                     setFields = list(
+                        ## FIXME: what is going on here?
+                        ## do.mc_st=FALSE, ## does this screw predict ?
+                        ## do.st=FALSE,
                         do.update = FALSE, ## fixme: doesn't take effect, so need to list all of them
                         do.st = FALSE, 
                         do.ll = FALSE,
                         do.mc_ll = FALSE,
                         do.mc_ll = FALSE,
                         do.pc_st = FALSE,
+                        do.pc_ll = FALSE),
+                    initForms = list(
+                        init.C.build.mc_ll = NULL,
+                        init.C.build.mc_st = NULL,
+                        init.C.build._ll   = NULL,
+                        init.M.validate = NULL,
+                        init.R = NULL),
+                    expr = expression({
+                        ## .basic_foldable_objects <- c("st", "ll")
+                        .basic_foldable_inxs <- c()
+                        init.M.build <- init.M.build[c("st", "pos_in_C")]
+                    })))
+
+### SINK
+PBM$initCells(defBC(type = "sink", prototype="*",
+                    setFields = list(
+                        do.ll = FALSE,
+                        do.mc_ll = FALSE,
+                        do.mc_ll = FALSE,
                         do.pc_ll = FALSE),
                     initForms = list(
                         init.C.build.mc_ll = NULL,

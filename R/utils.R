@@ -35,7 +35,7 @@ is_close_to <- function (object, label = NULL, tol = .005, ...)
     env <- as.environment(.self)
     if(force || is.null(env$.pst[[pname]])){
         env$.pst[[pname]] <-
-            bquote(parents[[.(pname)]][["st"]])
+            bquote(parents[[.(pname)]]$st)
     }
     if(force || is.null(env$.PST[[pname]]))
         env$.PST[[pname]] <- 

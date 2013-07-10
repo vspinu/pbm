@@ -64,7 +64,7 @@ pdDirichlet_conj <- mixin(
             ## todo: this is conjugate set.st for categorical child only. Split out!
             for(i in seq_len(size)){
                 ._curix <- child[["ixs"]][[1]] == i
-                ._counts <- tabulate(child[["st"]][._curix], nbins = child[["N"]][i])
+                ._counts <- tabulate(child$st[._curix], nbins = child[["N"]][i])
                 st[i, ] <- dirichlet_rng(1, ._counts + PV("theta")[i, ])
             }), 
         init.M.validate.child_type = form(
@@ -208,18 +208,18 @@ pdGaNormal <- mixin(
     initForms = list(
         init.R.build.nr_c_grs = form({## nr elements in each group as given by child[["ixs"]][[1L]]
             ## uses children! should be in very late stage! after M.build is done!
-            nr_c_grs <- c(tapply(get("st", child), child[["ixs"]][[1L]], length))
+            nr_c_grs <- c(tapply(child$st, child[["ixs"]][[1L]], length))
             names(nr_c_grs) <- NULL}),
         init.M.build.posterior = form(
-            posterior <- parents[[1]][["st"]]), 
+            posterior <- parents[[1]]$st), 
         set.st = form({
-            sum_c_grs <- rowsum(TR(c(child[["st"]])), group=child[["ixs"]][[1L]])
+            sum_c_grs <- rowsum(TR(c(child$st)), group=child[["ixs"]][[1L]])
             mean_c_grs <- c(sum_c_grs/nr_c_grs)
             posterior[, "mu0"] <- (sum_c_grs + pv("mu0") * pv("n0"))/ (nr_c_grs + pv("n0"))
             posterior[, "n0"] <- nr_c_grs + pv("n0")
             posterior[, "alpha0"] <- pv("alpha0") + nr_c_grs/2
             posterior[, "beta0"] <- pv("beta0") +
-                (rowsum.default((TR(c(get("st", child))) -
+                (rowsum.default((TR(c(child$st)) -
                                  mean_c_grs[child[["ixs"]][[1L]]])^2, child[["ixs"]][[1L]]) +
                  (nr_c_grs * pv("n0") * (mean_c_grs - pv("mu0"))^2)/(nr_c_grs + pv("n0")))/2
             for(i in seq_len(size)){
@@ -271,13 +271,13 @@ PBM$initCells(defBC(type = "log",
 ##                     setForms = list(
 ##                         set.ll = quote(
 ##                             ll[] <- dunif(st,
-##                                           min=parents[[1]][["st"]][, "min"][ix0],
-##                                           max=parents[[1]][["st"]][, "max"][ix0],
+##                                           min=parents[[1]]$st[, "min"][ix0],
+##                                           max=parents[[1]]$st[, "max"][ix0],
 ##                                           log=TRUE)),
 ##                         set.rand.st = quote(
 ##                             st[] <- runif(length(st),
-##                                           min=parents[[1]][["st"]][, "min"][ix0],
-##                                           max=parents[[1]][["st"]][, "max"][ix0]))),
+##                                           min=parents[[1]]$st[, "min"][ix0],
+##                                           max=parents[[1]]$st[, "max"][ix0]))),
 ##                     setFields = list(
 ##                         protocol = list(
 ##                             parents = list(

@@ -63,12 +63,13 @@ test_that("LogNormal with known MULOG works", {
     expect_close(mean(M2$taulog$mc_st[-burnin]), 1/var(log(Y)), .001)
 })
 
-test_that("M1 (lnorm) and M2 (exp tr) give similar results", {
+test_that("M1 (lnorm) and M2 (tExp) give similar results", {
     layout(matrix(c(1, 3, 2, 3), 2))
     hist(log(st1 <- M1$taulog$mc_st))
     hist(log(st2 <- M2$taulog$mc_st))
     matplot(cbind(st1, st2)[-burnin, ], type = "l", lty = 1)
     expect_close(mn1, mn2, .001)
+    expect_close(M1$taulog$rejects, M2$tau$rejects, 50)
 })
 
 ## M2$tau$do.debug <- T
@@ -90,6 +91,29 @@ test_that("M1 (lnorm) and M2 (exp tr) give similar results", {
 ## hist(lldif)
 ## mean(lldif)
 ## plot(ts(lldif))
+
+
+
+## KNOWN mulog, with one-to-one internal transform
+M3 <- pbm("LogNormal",
+          DATA = defBC("dc", mixin = pdLogNormal,
+              st = Y,
+              mulog = defP("hc", cix = 1, st = mulog),
+              taulog = defP("dnorm",
+                  mixin = trExp, 
+                  do.mc_ll = T, 
+                  cix = 1, size = 1, scale = .1, 
+                  hp_taulog = defP("hc",
+                      var = c(mean = 0, tau = .005)))))
+
+test_that("LogNormal with known MULOG with internal 1-to-1 transform works", {
+    update(M3, nr_iter = sims)
+    plot(M3$taulog$mc_st[-burnin], type = "l")
+    mn3 <<- mean(M3$taulog$mc_st[-burnin])
+    expect_close(mn1, mn3, .001)
+    expect_close(M1$taulog$rejects, M3$taulog$rejects, 50)
+    expect_close(mean(M3$taulog.$mc_st[-burnin]), 1/var(log(Y)), .001)
+})
 
 
 

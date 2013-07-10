@@ -14,6 +14,7 @@
 .field.size <- function(arg){
     ## API: size is primitive
     ## API: size<- changes everything
+    ## fixme: check: how it plays with tr
     if (missing(arg))
         return(size)
     else{
@@ -59,7 +60,8 @@
 .field.var <- function(arg){
     ## API: var is abstract field derived from st[1, ]
     ## API: When var<- is always replicated across first dimension
-    ## API: var<- can not change SIZE, but can change varsize and LL 
+    ## API: var<- can not change SIZE, but can change varsize and LL
+    ## fixme: check: how it plays with tr
     if(missing(arg)){
         out <- st[1,, drop = F]
         if(size > 1) rownames(out) <- NULL
@@ -103,6 +105,7 @@
                 nm <- names(arg)
                 dim(arg) <- c(length(arg), 1L)
             }
+            ## fixme: check: how it plays with tr
             assign("st", arg, .self)
             if(!is.null(nm))
                 .self$names <- nm

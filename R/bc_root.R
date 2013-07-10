@@ -31,6 +31,7 @@ root$initFields(subtype = "",
                 varsize = protoField(.field.varsize),
                 st = protoField(.field.st),
                 ll = protoField(.field.ll),
+                ll_tr = matrix(0), 
                 lldim = protoField(.field.lldim),
                 sims =  protoField(.field.sims),
                 ## for debugging purpose only
@@ -43,6 +44,7 @@ root$initFields(subtype = "",
                 do.last = TRUE,
                 do.debug = FALSE,
                 do.ll = TRUE,
+                do.ll_tr = TRUE,
                 do.pc_st = TRUE,
                 do.pc_ll = FALSE,
                 pc_ll_groups = protoField(.field.pc_ll_groups),
@@ -295,7 +297,7 @@ root$initForms(update = form(
                        if(..ll_is_old..){
                            e(set.ll)
                            e(set.ll_is_updated)
-                       }}))
+                       }})), 
                UPDATE = form(
                    pre = form(
                        timer = form(
