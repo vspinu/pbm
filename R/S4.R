@@ -7,96 +7,6 @@ setClass("bCellContainer", representation(sims = "namedList", is_mirror = "logic
          prototype = list(is_mirror = FALSE, sims = new("namedList", list(start = 1L, end = 0L))),
          contains = "cellContainer")
 
-## setCellClass("AC", contextClass="pbm", contains="BC")
-## setCellClass("ZC", contextClass="pbm", contains="AC")
-setMethod("initialize", "BC",
-          function(.Object,
-                   homeContext = NULL,
-                   parents = list(), ## either character or parentDefinition objects
-                   children = list(), ## only character objects
-                   INIT.C = TRUE, ...){
-
-              ## Initialize new object and match and initialize  the parents
-              ## Simmilarly to .initialize_protoCell, Don't install anything into the context
-              ## initCells install the cells in the context.
-              .Object <- callNextMethod(.Object, homeContext = homeContext, ...)
-              if(INIT.C &&  exists("init.C", envir = .Object))
-                  evalq(e(init.C), envir=.Object)
-              .Object$evalq({
-                  .pix_v <- .pix_p <- list()
-                  for(nm in c(".pst", ".PST", ".pv", ".PV"))
-                      assign(nm, list(), .self)
-
-                  pix <-
-                      eval(substitute(
-                          function(v, p){
-                              if(missing(p)) e(vname[[v]])
-                              else e(pname[[p]])
-                          }, list(vname = as.name(".pix_v"), 
-                                  pname = as.name(".pix_p"))))
-                  
-                  pst <- function(p) e(.pst[[p]])
-                  PST <- function(p) e(.PST[[p]])
-                  pv <- function(v) e(.pv[[v]])
-                  PV <- function(v) e(.PV[[v]])
-                  ## fixme: .parent should be .pcells, pcell should be parent, parents should be pcells
-                  pcell <- function(v) e(.parent[[v]])
-              })
-              if(length(parents)){
-                  P <- instantiate_parents(parents, homeContext)
-                  assign("parents", new("bcParents",
-                                        P[["parents"]]), envir = .Object)
-                                        #class(.Object[["parents"]]) <- c("parents", "list")
-                  assign("ixs_dim", P[["cixs_dim"]], envir = .Object)
-                  assign("ixs", P[["cixs"]], envir = .Object)
-
-                  objenv <-  as.environment(.Object)
-                  for(pname in names(P[["parents"]])){
-                      ## if cixs are forms, assign to .fpix
-                      if(is.language(P[["cixs"]][[pname]])){
-                          objenv$.pix_p[[pname]] <- P[["cixs"]][[pname]]
-                      }
-                      .assign_pst_maybe(.Object, pname)
-                      ## set all pix.xxx forms provided by user
-                      .assign_pix_maybe(.Object, pname)
-                  }
-
-                  for(pname in names(P[["parents"]])){
-                      ## create 'pv.xx', 'PV.xxx' and 'pixv.xxx' forms
-                      pars <- P[["cpars"]][[pname]]
-                      if(!is.null(pars)){
-                          if(is.null(names(pars))){
-                              ## API: if no names, then it is a list of cpars
-                              ## declared in current parent
-                              if(any(notin <- !pars %in% c(.Object$parnames, .Object$multiparnames)))
-                                  stop(paste(pars[notin], collapse = ", "),
-                                       " are not declared parameters in cell ", .Object$type)
-                              .assign_pv_maybe(.Object, pars, pname)
-                          }else{
-                              ## API: if at least one name in cpars, all should be named
-                              if(any(!nzchar(names(pars))))
-                                  stop("if cpars is a named vector, all names must be suplied")
-                              .assign_pv_paired_maybe(.Object, pars, pname)
-                          }}}
-              }else{
-                  assign("parents", new("bcParents"), .Object)
-              }
-
-              if(length(children)){
-                  ptcl <- get("protocol", get(".prototype", envir = .Object))$children
-                  if((len <- length(ptcl)) > 0 &&
-                     len != length(children)){
-                      stop(sprintf("Supplied number of children /%s/ is not equial to defined number of children /%s/ in the protocol of object of type '%s' ",
-                                   length(children), len, .getType(.Object)))
-                  }
-                  C <- instantiate_children(children, homeContext)
-                  assign("children", new("bcChildren", C), envir = .Object)
-              }else{
-                  assign("children", new("bcChildren"), .Object)
-              }
-              .Object
-          })
-
 instantiate_parents <- function(parents, homeContext = NULL){
     ## parents is a list of parents defenitions
     ## RETURN: list of parents (cells!!), ixs and ixs_dim all with the same names
@@ -428,8 +338,110 @@ defBC <- function(prototype, ..., distr = NULL, var = NULL, varnames = NULL,
                        setMethods = setMethods,
                        initForms = initForms,
                        setForms = setForms,
-                       mixins = distr,
+                       mixin = mixin,
                        expr = expr))
     objDef
 }
 
+
+## setCellClass("AC", contextClass="pbm", contains="BC")
+## setCellClass("ZC", contextClass="pbm", contains="AC")
+setMethod("initialize", "BC",
+          function(.Object,
+                   homeContext = NULL,
+                   parents = list(), ## either character or parentDefinition objects
+                   children = list(), ## only character objects
+                   ## capture important names
+                   mixin = list(),
+                   initMethods = list(), initFields = list(), initForms = list(),
+                   setMethods = list(), setFields = list(), setForms = list(),
+                   expr = expression(),                    
+                   INIT.C = TRUE, ...){
+
+              ## Initialize new object and match and initialize  the parents
+              ## Simmilarly to .initialize_protoCell, Don't install anything into the context
+              ## initCells install the cells in the context.
+              .Object <- callNextMethod(.Object, homeContext = homeContext, ...)
+              if(INIT.C &&  exists("init.C", envir = .Object))
+                  evalq(e(init.C), envir=.Object)
+              .Object$evalq({
+                  .pix_v <- .pix_p <- list()
+                  for(nm in c(".pst", ".PST", ".pv", ".PV"))
+                      assign(nm, list(), .self)
+
+                  pix <-
+                      eval(substitute(
+                          function(v, p){
+                              if(missing(p)) e(vname[[v]])
+                              else e(pname[[p]])
+                          }, list(vname = as.name(".pix_v"), 
+                                  pname = as.name(".pix_p"))))
+                  
+                  pst <- function(p) e(.pst[[p]])
+                  PST <- function(p) e(.PST[[p]])
+                  pv <- function(v) e(.pv[[v]])
+                  PV <- function(v) e(.PV[[v]])
+                  ## fixme: .parent should be .pcells, pcell should be parent, parents should be pcells
+                  pcell <- function(v) e(.parent[[v]])
+              })
+              if(length(parents)){
+                  P <- instantiate_parents(parents, homeContext)
+                  assign("parents", new("bcParents",
+                                        P[["parents"]]), envir = .Object)
+                                        #class(.Object[["parents"]]) <- c("parents", "list")
+                  assign("ixs_dim", P[["cixs_dim"]], envir = .Object)
+                  assign("ixs", P[["cixs"]], envir = .Object)
+
+                  objenv <-  as.environment(.Object)
+                  for(pname in names(P[["parents"]])){
+                      ## if cixs are forms, assign to .fpix
+                      if(is.language(P[["cixs"]][[pname]])){
+                          objenv$.pix_p[[pname]] <- P[["cixs"]][[pname]]
+                      }
+                      .assign_pst_maybe(.Object, pname)
+                      ## set all pix.xxx forms provided by user
+                      .assign_pix_maybe(.Object, pname)
+                  }
+
+                  for(pname in names(P[["parents"]])){
+                      ## create 'pv.xx', 'PV.xxx' and 'pixv.xxx' forms
+                      pars <- P[["cpars"]][[pname]]
+                      if(!is.null(pars)){
+                          if(is.null(names(pars))){
+                              ## API: if no names, then it is a list of cpars
+                              ## declared in current parent
+                              if(any(notin <- !pars %in% c(.Object$parnames, .Object$multiparnames)))
+                                  stop(paste(pars[notin], collapse = ", "),
+                                       " are not declared parameters in cell ", .Object$type)
+                              .assign_pv_maybe(.Object, pars, pname)
+                          }else{
+                              ## API: if at least one name in cpars, all should be named
+                              if(any(!nzchar(names(pars))))
+                                  stop("if cpars is a named vector, all names must be suplied")
+                              .assign_pv_paired_maybe(.Object, pars, pname)
+                          }}}
+              }else{
+                  assign("parents", new("bcParents"), .Object)
+              }
+
+              if(length(children)){
+                  ptcl <- get("protocol", get(".prototype", envir = .Object))$children
+                  if((len <- length(ptcl)) > 0 &&
+                     len != length(children)){
+                      stop(sprintf("Supplied number of children /%s/ is not equial to defined number of children /%s/ in the protocol of object of type '%s' ",
+                                   length(children), len, .getType(.Object)))
+                  }
+                  C <- instantiate_children(children, homeContext)
+                  assign("children", new("bcChildren", C), envir = .Object)
+              }else{
+                  assign("children", new("bcChildren"), .Object)
+              }
+
+              ## only at the end
+              .mixin(mixin, .Object,  initMethods = initMethods,
+                     initFields = initFields, initForms = initForms,
+                     setMethods = setMethods, setFields = setFields,
+                     setForms = setForms, expr = expr)
+
+              .Object
+          })
