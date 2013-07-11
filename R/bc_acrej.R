@@ -35,7 +35,7 @@ PBM$initCells(defBC(type = "acrej", prototype="uc",
 PBM$initCells(defBC(type = "mhrw",
                     prototype = "acrej.uc",
                     initFields = list(
-                        mhtr = tIdentity), 
+                        mh_tr = tIdentity), 
                     setForms = list(
                         set.st = form({
                             e(update.ll);	 .update.ll(children)
@@ -73,10 +73,10 @@ PBM$initCells(defBC(type = "mhrw",
 PBM$initCells(defBC(type = "norm", prototype="mhrw.acrej.uc",
                     setForms = list(
                         set.st_proposal = form(
-                            st[] <- mhtr@TR(mhtr@ITR(`_st`) + c(rnorm(length(st)) * scale))),
+                            st[] <- mh_tr@TR(mh_tr@ITR(`_st`) + c(rnorm(length(st)) * scale))),
                         set.alphas = form({
-                            alphas <- exp((ll_all - mhtr@LL(st))  -
-                                          (`_ll_all` - mhtr@LL(`_st`)))
+                            alphas <- exp((ll_all - mh_tr@LL(st))  -
+                                          (`_ll_all` - mh_tr@LL(`_st`)))
                         })),
                     expr = expression(TR <- identity, ITR <- identity)))
 

@@ -154,7 +154,7 @@ pdGamma <- mixin(
 
 PBM$initCells(defBC(type = "pd", mixin = pdGamma,
                     prototype = "norm.mhrw.acrej.uc",
-                    mhtr = tExp))
+                    mh_tr = tExp))
 
 
 ###_ LogNorm
@@ -176,7 +176,7 @@ pdLogNorm <- mixin(
 
 PBM$initCells(defBC(type = "pd", mixin = pdLogNorm,
                     prototype = "norm.mhrw.acrej.uc",
-                    mhtr = tExp))
+                    mh_tr = tExp))
 
 
 ### GaNorm conjugate
