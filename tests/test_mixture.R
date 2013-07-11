@@ -1,6 +1,8 @@
+context("Normal Mixture")
+
 trueM <- c(100, 145)
 trueSD <- 15
-N <- 1000
+N <- 2000
 K <- 2
 trueCL <- sample(1:K, N, T, c(.2, .8))
 Y <- rnorm(N, trueM[trueCL] , trueSD)
@@ -8,22 +10,22 @@ burnin <- 1:500
 hpDir = rep.int(.0001, K)
 
 M <- pbm("NMix",
-         D = defBC("dc.", mixin = pdNormal, 
+         D = defBC("dc.", mixin = pdNorm, 
              st = Y, 
-             mu = defP("dnorm",
+             mu = defP("pd(Norm)",
                  cix = quote(pst("clust")),
                  scale = 1, size = 2, 
                  var = mean(Y), 
                  hp_mu = defP("hc",
                      var = c(mean = 0, tau = .00005))),
-             tau = defP("dlnorm",
+             tau = defP("pd(LogNorm)",
                  cix = 1, scale = .2, 
                  hp_tau = defP("hc",
                      var = c(meanlog = 1, taulog = .00005))),
-             clust = defP("dcat",
-                 cix = 1:N,
+             clust = defP("pd(Cat)",
+                 cix = 1:N, st = sample(1:2, N, T), 
                  N = K, size = N, 
-                 pr_clust = defP("ddirich",
+                 pr_clust = defP("pd(conj)(Dirich)",
                      cix = 1, cix_dim = 1, 
                      varsize = K, 
                      hp_clust = defP("hc", var = hpDir)))))
@@ -45,6 +47,7 @@ M <- pbm("NMix",
 
 
 test_that("normal mixture works", {
+    ## fixme: without this error occurs!!! grouped ll computation in D is incorect
     M$clust$st <- sample(1:2, N, T)
     update(M, 1000)
 

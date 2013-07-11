@@ -26,7 +26,7 @@ tExp <- protoTransform("tExp",
 
 trRoot <- mixin(
     initFields = list(
-        tr = tIdentity, 
+        st_tr = tIdentity, 
         st = protoField(
             doc = "Call next method to retrive ST and then apply the transfrom.",
             function(arg){
@@ -67,12 +67,12 @@ trRoot <- mixin(
             })))
 
 trLog <- mixin(
-    setFields = list(tr = tLog),
+    setFields = list(st_tr = tLog),
     parentMixins = trRoot, 
     subtype = "trLog")
 
 trExp <- mixin(
-    setFields = list(tr = tExp),
+    setFields = list(st_tr = tExp),
     parentMixins = trRoot, 
     subtype = "trExp")
         

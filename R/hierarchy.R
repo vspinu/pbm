@@ -25,3 +25,6 @@ source("~/works/pbm/R/distributions.R")
 source("~/works/pbm/R/adapt.R")
 
 
+
+
+test_dir("~/works/pbm/tests/")

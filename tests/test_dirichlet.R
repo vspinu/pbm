@@ -1,5 +1,8 @@
 ### SIMPLE INFERENCE
 ### Dirichlet conjugate priors
+
+context("Dirichlet")
+
 N <- 1000
 a <- (1:3)/6
 apr <- c(1, 1, 1)
@@ -8,7 +11,7 @@ Y <- apply(D, 1, function(p) sample(1:3, 1, T, prob = p))
 
 M <- pbm("CatDirichlet",
          DATA = defBC("dc.",
-             mixin = pdCategorical,
+             mixin = pdCat,
              st = Y, N = 3, 
              D = defP("pd(conj)(Dirich)",
                  varsize = 3, cix = rep.int(1, N), cix_dim = 1, 

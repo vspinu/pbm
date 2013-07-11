@@ -1,3 +1,4 @@
+context("LogNorm")
 sims <- 2000
 N <- 1000
 mulog <- 1
@@ -15,11 +16,11 @@ M <- pbm("LogNorm",
              mulog = defP("pd(Norm)",
                  cix = 1, size = 1, scale = .5, 
                  hp_mulog = defP("hc",
-                     var = c(mean = 0, tau = .00001))),
+                     var = c(mean = 0, tau = .005))),
              taulog = defP("hc",
                  cix = 1, st = taulog)))
 
-test_that("LogNorm with known TAULOG works", {
+test_that("LogNorm with known TAULOG", {
     update(M, nr_iter = sims)
     plot(M$mulog$mc_st[-burnin], type = "l")
     expect_close(mean(M$mulog$mc_st[-burnin]), mean(log(Y)), .01)
@@ -65,19 +66,19 @@ test_that("LogNorm with known MULOG works (dirrect specification)", {
 })
 
 
-## KNOWN mulog, with tranform cell
 M <- M2 <-
     pbm("LogNorm",
         DATA = defBC("dc.", mixin = pdLogNorm,
             st = Y,
             mulog = defP("hc", cix = 1, st = mulog),
-            taulog = defP("tr", tr = tExp, do.mc_ll = T, 
+            taulog = defP("tr",
+                st_tr = tExp, do.mc_ll = T, 
                 tau = defP("pd(Norm)", do.mc_ll = T, 
                     cix = 1, size = 1, scale = .1, 
                     hp_tau = defP("hc",
                         var = c(mean = 0, tau = .005))))))
 
-test_that("LogNorm with known MULOG works", {
+test_that("LogNorm with known MULOG works (with transform cell)", {
     update(M2, nr_iter = sims)
     plot(M2$taulog$mc_st[-burnin], type = "l")
     plot(M2$tau$mc_st[-burnin], type = "l")

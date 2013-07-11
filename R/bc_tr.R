@@ -11,7 +11,7 @@ PBM$initCells(defBC(type = "tr", prototype = "*",
                         ## tr cells are updated by parent cells in UPDATE.tr_children
                         do.update = FALSE), 
                     initFields = list(
-                        tr = protoField(.field.tr,
+                        st_tr = protoField(.field.st_tr,
                             doc = "API: this is an object of protoTransform class describing the state and likelihood transformation.")),
                     initForms = list(
                         init.R.build.st = form(e(init.M.build.st))), 
@@ -58,5 +58,5 @@ PBM$initCells(defBC(type = "tr", prototype = "*",
                             .set.ll_is_updated(children)
                         }), 
                     expr = expression(
-                        tr <- tIdentity)))
+                        st_tr <- tIdentity)))
 

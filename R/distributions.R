@@ -67,8 +67,8 @@ pdDirichlet_conj <- mixin(
                 st[i, ] <- dirichlet_rng(1, ._counts + PV("theta")[i, ])
             }), 
         init.M.validate.child_type = form(
-            if(!protoIs(child, "Categorical"))
-            stop.pbm("Child of '", .type, "' should be of type 'Categorical'"))),
+            if(!protoIs(child, "Cat"))
+            stop.pbm("Child of '", .type, "' should be categorical (aka of subtype '(Cat)')"))),
     parentMixins = pdDirich,
     subtype = "conj")
 
@@ -77,7 +77,7 @@ PBM$initCells(defBC(type = "pd", prototype = "conj.uc",
 
 
 ### Categorical
-pdCategorical <- mixin(
+pdCat <- mixin(
     ## todo: make N also a stochastic parameter.
     setFields = list(multiparnames = "P"),
     setForms = list(
@@ -108,11 +108,11 @@ pdCategorical <- mixin(
             if(min(st) < 1) stop.pbm(sprintf("minimum in ST (%s) is less than 1. Categorical varialbe takes values in 1:N.", min(st)))
         })),
     initFields = list(N = 1),
-    subtype = "Categorical")
+    subtype = "Cat")
 
 PBM$initCells(defBC(type = "pd",
                     prototype = "discr.unif",
-                    mixin = pdCategorical))
+                    mixin = pdCat))
 
 
 ### Norm
@@ -165,7 +165,8 @@ pdLogNorm <- mixin(
             ll[] <- dlnorm(st,
                            meanlog = PV("meanlog"),
                            sdlog=1/sqrt(PV("taulog")),
-                           log=TRUE)),
+                           log=TRUE))
+        ,
         set.rand.st = quote(
             st[] <- rlnorm(length(st),
                            meanlog = PV("meanlog"),

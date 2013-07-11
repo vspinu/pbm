@@ -1,7 +1,7 @@
-### SIMPLE INFERENCE
-### 
+context("Norm")
+
 N <- 1000
-sims <- 2000
+sims <- 3000
 mu <- 1
 tau <- .25
 Y <- rnorm(N, mu, sqrt(1/tau))
@@ -10,7 +10,7 @@ burnin <- 1:500
 
 
 ## KNOWN TAU
-M <- pbm("NORMAL",
+M <- pbm("Normal",
          DATA = defBC("dc.", mixin = pdNorm, 
              st = Y, 
              mu = defP("pd(Norm)",
@@ -20,7 +20,7 @@ M <- pbm("NORMAL",
              tau = defP("hc",
                  cix = 1, st = tau)))
 
-test_that("NORMAL with know TAU gives correct estimates",{
+test_that("Normal with know TAU",{
     update(M, nr_iter = sims)
     plot(M$mu$mc_st[-burnin,, ], type = "l")
     abline(h = mean(Y), col = "red", lwd = 2)
@@ -29,7 +29,7 @@ test_that("NORMAL with know TAU gives correct estimates",{
 
 
 ## KNOWN MU
-M <- pbm("NORMAL",
+M <- pbm("Normal",
          DATA = defBC("dc.", mixin = pdNorm, st = Y,
              mu =
              defP("hc", cix = 1, st = mu),
@@ -39,7 +39,7 @@ M <- pbm("NORMAL",
                   hp_tau = defP("hc",
                       var = c(meanlog = 0, taulog = .005)))))
 
-test_that("NORMAL with know MU gives correct estimates",{
+test_that("Normal with know MU",{
     update(M, nr_iter = sims)
     plot(M$tau$mc_st[-burnin,, ], type = "l")
     abline(h = 1/var(Y), col = "red", lwd = 2)
@@ -48,7 +48,7 @@ test_that("NORMAL with know MU gives correct estimates",{
 
 
 ## UNKNOWN MU, TAU
-M <- pbm("NORMAL",
+M <- pbm("Normal",
          DATA = defBC("dc.", mixin = pdNorm, 
              st = Y, 
              mu = defP("pd(Norm)",
@@ -62,8 +62,8 @@ M <- pbm("NORMAL",
                       var = c(meanlog = 0, taulog = .005)))))
 
 
-test_that("NORMAL with unknown MU and TAU gives correct estimates",{
-    update(M, nr_iter = sims*2)
+test_that("Normal with unknown MU and TAU",{
+    update(M, nr_iter = sims)
 
     par(mfrow = c(1, 2))
     plot(M$mu.$mc_st[-burnin,, ], type = "l")

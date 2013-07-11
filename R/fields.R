@@ -386,14 +386,14 @@ You can control its size with LLDIM field.")
 }
 
 
-.field.tr <- function(x){
+.field.st_tr <- function(x){
         if(missing(x))
-            get("tr", .self)
+            get("st_tr", .self)
         else{
             if(!is(x, "protoTransform"))
                 stop("tr fields should be of class 'protoTransform'; supplied ", class(x))
             assign(".subtypes", c(x@name, .subtypes))
-            assign("tr", x, .self)
+            assign("st_tr", x, .self)
             .self
     }
 }
