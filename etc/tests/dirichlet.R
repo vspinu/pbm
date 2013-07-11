@@ -7,12 +7,13 @@ D <- dirichlet_rng(N, a)
 Y <- apply(D, 1, function(p) sample(1:3, 1, T, prob = p))
 
 M <- pbm("CatDirichlet",
-         DATA = defBC("dc.", distr = pdCategorical,
-           st = Y, N = 3, 
-           D = defP("ddirich",
-             varsize = 3, cix = rep.int(1, N), cix_dim = 1, 
-             hpD = defP("hc",
-               cix = 1, var = apr))))
+         DATA = defBC("dc.",
+             mixin = pdCategorical,
+             st = Y, N = 3, 
+             D = defP("pd(conj)(Dirich)",
+                 varsize = 3, cix = rep.int(1, N), cix_dim = 1, 
+                 hpD = defP("hc",
+                     cix = 1, var = apr))))
 
 M$D$do.mc_st <- T
 update(M, nr_iter = 1000)

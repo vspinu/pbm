@@ -9,8 +9,7 @@ protoTransform <- function(name = "identity",
                            TR = function(x) x,
                            ITR = function(y) y,
                            LL = function(y) 0){
-    new("protoTransform", name = name,
-        TR = TR, ITR = ITR, LL = LL)
+    new("protoTransform", name = name, TR = TR, ITR = ITR, LL = LL)
 }
 
 tIdentity <- protoTransform()
@@ -32,27 +31,27 @@ trRoot <- mixin(
             doc = "Call next method to retrive ST and then apply the transfrom.",
             function(arg){
                 if(missing(arg))
-                    tr@TR(nextProtoField("st")())
+                    st_tr@TR(nextProtoField("st")())
                 else
-                    nextProtoField("st")(tr@ITR(arg))
+                    nextProtoField("st")(st_tr@ITR(arg))
             }),
         mc_st = protoField(
             doc = "Call next method to retrive MC_ST and then apply the transfrom.",
             function(arg){
-                tr@TR(nextProtoField("mc_st")(arg)) ## mc_st is readonly
+                st_tr@TR(nextProtoField("mc_st")(arg)) ## mc_st is readonly
             }),
         st = protoField(
             doc = "Call next method to retrive ST and then apply the transfrom.",
             function(arg){
                 if(missing(arg))
-                    tr@TR(nextProtoField("st")())
+                    st_tr@TR(nextProtoField("st")())
                 else
-                    nextProtoField("st")(tr@ITR(arg))
+                    nextProtoField("st")(st_tr@ITR(arg))
             }),
         mc_st = protoField(
             doc = "Call next method to retrive MC_ST and then apply the transfrom.",
             function(arg){
-                tr@TR(nextProtoField("mc_st")(arg))
+                st_tr@TR(nextProtoField("mc_st")(arg))
             })),
     initForms = list(
         init.R.build.ll_tr = form(
@@ -64,7 +63,7 @@ trRoot <- mixin(
                 ## needed for DIC but not for MHRW fixme: how to cache nicely?
                 ## Both st method and ll_tr form apply the transformation. May
                 ## be set.st.hook?
-                ll_tr[] <- tr@LL(tr@TR(st))
+                ll_tr[] <- st_tr@LL(st_tr@TR(st))
             })))
 
 trLog <- mixin(

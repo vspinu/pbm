@@ -275,8 +275,10 @@ root$evalq({
             if(identical(env, el)) return(TRUE)
         FALSE
     }
-    fastRS <- function(x)
-        if(dim(x)[[2]] == 1L) x else rowSums(x)
+    fastRS <- function(x){
+        dm <- dim(x)
+        if(is.null(dm) || dm[[2]] == 1L) x else rowSums(x)
+    }
 })
 
 

@@ -61,8 +61,9 @@ setMethod("update", "PBM",
                   .N <- .N + 1L
                   .Internal(assign(".N", .N, root_env, FALSE))
 
-                  ## for(bc in .UP) evalq({e(set.ll_is_old);e(set.st_is_old)}, envir = bc)
-                  for(bc in model_cells) evalq({e(set.st_is_old)}, envir = bc)
+                  ## only .UP cells!! ressetign st_is_old in TR cells induces
+                  ## updating of ST -> updating of LL
+                  for(bc in .UP) evalq({e(set.st_is_old)}, envir = bc)
                   for(bc in .UP) evalq(e(UPDATE), envir=bc)
                   
                   for(.T in iter_along_thin){
@@ -70,7 +71,7 @@ setMethod("update", "PBM",
                       .N <- .N + 1L
                       .Internal(assign(".N", .N, root_env, FALSE))
                       
-                      for(bc in model_cells) evalq({e(set.st_is_old)}, envir = bc)
+                      for(bc in .UP) evalq({e(set.st_is_old)}, envir = bc)
                       for(bc in .UP) evalq(e(UPDATE), envir=bc)
                   }
                   if(do.pr_bar) setTxtProgressBar(pb = .pb, value = .I)
@@ -82,10 +83,11 @@ setMethod("update", "PBM",
                   cat("\nPartial Times: \n")
                   tdata <- as.data.frame(do.call(rbind,
                                                  lapply(.UP, function(bc){
-                                                     c(minutes=round((bc.t <- get(".t", envir = bc))/60, 3),
+                                                     bc.t <- get(".t", envir = bc)
+                                                     c(h = bc.t %/% 3600, m= bc.t %/% 60, s = round(bc.t %% 60, 1), 
                                                        `%total`=round(bc.t/total.time*100, 1))
                                                  })))
-                  tdata <- tdata[order(tdata$minutes, decreasing=TRUE), ]
+                  tdata <- tdata[order(tdata$`%total`, decreasing=TRUE), ]
                   print(do.call(rbind, list(tdata, TOTAL=colSums(tdata))))
               }
           })

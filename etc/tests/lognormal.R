@@ -1,25 +1,25 @@
-sims <- 1500
-N <- 2000
+sims <- 2000
+N <- 1000
 mulog <- 1
 taulog <- .25
 Y <- rlnorm(N, mulog, sqrt(1/taulog))
-burnin <- 1:500
-ustart <- 500
+burnin <- 1:250
+ustart <- 250
 par(mfrow = c(1, 1))
 
 
 ## KNOWN taulog
-M <- pbm("LogNormal",
-         DATA = defBC("dc.", mixin = pdLogNormal, 
+M <- pbm("LogNorm",
+         DATA = defBC("dc.", mixin = pdLogNorm, 
              st = Y, 
-             mulog = defP("dnorm",
+             mulog = defP("pd(Norm)",
                  cix = 1, size = 1, scale = .5, 
                  hp_mulog = defP("hc",
                      var = c(mean = 0, tau = .00001))),
              taulog = defP("hc",
                  cix = 1, st = taulog)))
 
-test_that("LogNormal with known TAULOG works", {
+test_that("LogNorm with known TAULOG works", {
     update(M, nr_iter = sims)
     plot(M$mulog$mc_st[-burnin], type = "l")
     expect_close(mean(M$mulog$mc_st[-burnin]), mean(log(Y)), .01)
@@ -27,16 +27,37 @@ test_that("LogNormal with known TAULOG works", {
 
 
 ## KNOWN mulog
-M1 <- pbm("LogNormal",
-         DATA = defBC("dc", mixin = pdLogNormal,
+M <- M1 <- pbm("LogNorm",
+         DATA = defBC("dc", mixin = pdLogNorm,
              st = Y,
              mulog = defP("hc", cix = 1, st = mulog),
-             taulog = defP("dlnorm", do.mc_ll = T, 
+             taulog = defP("pd(LogNorm)", do.mc_ll = T, 
                  cix = 1, size = 1, scale = .1, 
                  hp_taulog = defP("hc",
                      var = c(meanlog = 0, taulog = .005)))))
 
-test_that("LogNormal with known MULOG works", {
+test_that("LogNorm with known MULOG works", {
+    update(M1, nr_iter = sims)
+    plot(M1$taulog$mc_st[-burnin], type = "l")
+    mn1 <<- mean(M1$taulog$mc_st[-burnin])
+    expect_close(mean(M1$taulog.$mc_st[-burnin]), 1/var(log(Y)), .001)
+})
+
+
+## KNOWN mulog
+M <- M1 <- pbm("LogNorm",
+               DATA = defBC("dc", mixin = pdLogNorm,
+                   st = Y,
+                   mulog = defP("hc", cix = 1, st = mulog),
+                   taulog = defP("norm.mhrw",
+                       mixin = pdLogNorm,
+                       mhtr = tExp, 
+                       do.mc_ll = T, 
+                       cix = 1, size = 1, scale = .1, 
+                       hp_taulog = defP("hc",
+                           var = c(meanlog = 0, taulog = .005)))))
+
+test_that("LogNorm with known MULOG works (dirrect specification)", {
     update(M1, nr_iter = sims)
     plot(M1$taulog$mc_st[-burnin], type = "l")
     mn1 <<- mean(M1$taulog$mc_st[-burnin])
@@ -45,17 +66,18 @@ test_that("LogNormal with known MULOG works", {
 
 
 ## KNOWN mulog, with tranform cell
-M2 <- pbm("LogNormal",
-         DATA = defBC("dc.", mixin = pdLogNormal,
-             st = Y,
-             mulog = defP("hc", cix = 1, st = mulog),
-             taulog = defP("tr", tr = tExp, do.mc_ll = T, 
-                 tau = defP("dnorm", do.mc_ll = T, 
-                     cix = 1, size = 1, scale = .1, 
-                     hp_tau = defP("hc",
-                         var = c(mean = 0, tau = .005))))))
+M <- M2 <-
+    pbm("LogNorm",
+        DATA = defBC("dc.", mixin = pdLogNorm,
+            st = Y,
+            mulog = defP("hc", cix = 1, st = mulog),
+            taulog = defP("tr", tr = tExp, do.mc_ll = T, 
+                tau = defP("pd(Norm)", do.mc_ll = T, 
+                    cix = 1, size = 1, scale = .1, 
+                    hp_tau = defP("hc",
+                        var = c(mean = 0, tau = .005))))))
 
-test_that("LogNormal with known MULOG works", {
+test_that("LogNorm with known MULOG works", {
     update(M2, nr_iter = sims)
     plot(M2$taulog$mc_st[-burnin], type = "l")
     plot(M2$tau$mc_st[-burnin], type = "l")
@@ -95,43 +117,43 @@ test_that("M1 (lnorm) and M2 (tExp) give similar results", {
 
 
 ## KNOWN mulog, with one-to-one internal transform
-M3 <- pbm("LogNormal",
-          DATA = defBC("dc", mixin = pdLogNormal,
+M3 <- pbm("LogNorm",
+          DATA = defBC("dc", mixin = pdLogNorm,
               st = Y,
               mulog = defP("hc", cix = 1, st = mulog),
-              taulog = defP("dnorm",
-                  mixin = trExp, 
+              taulog = defP("norm.mhrw",
+                  mixin = list(pdNorm, trExp), 
                   do.mc_ll = T, 
                   cix = 1, size = 1, scale = .1, 
                   hp_taulog = defP("hc",
                       var = c(mean = 0, tau = .005)))))
 
-test_that("LogNormal with known MULOG with internal 1-to-1 transform works", {
+test_that("LogNorm with known MULOG with internal 1-to-1 transform works", {
     update(M3, nr_iter = sims)
     plot(M3$taulog$mc_st[-burnin], type = "l")
     mn3 <<- mean(M3$taulog$mc_st[-burnin])
     expect_close(mn1, mn3, .001)
-    expect_close(M1$taulog$rejects, M3$taulog$rejects, 50)
-    expect_close(mean(M3$taulog.$mc_st[-burnin]), 1/var(log(Y)), .001)
+    expect_close(M1$taulog$rejects, M3$taulog$rejects, 30)
+    expect_close(mean(M3$taulog$mc_st[-burnin]), 1/var(log(Y)), .001)
 })
 
 
 
 ## UNKNOWN mulog, taulog
-M <- pbm("LogNormal",
-         DATA = defBC("dc.", mixin = pdLogNormal, 
+M <- pbm("LogNorm",
+         DATA = defBC("dc.", mixin = pdLogNorm, 
              st = Y, 
-             mulog = defP("dnorm",
+             mulog = defP("pd(Norm)",
                  cix = 1, size = 1, scale = .1, 
                  hp_mulog = defP("hc",
                      var = c(mean = 0, tau = .00001))),
              taulog =
-             defP("dlnorm",
+             defP("pd(LogNorm)",
                   cix = 1, size = 1, scale = .1, 
                   hp_taulog = defP("hc",
                       var = c(meanlog = 0, taulog = .005)))))
 
-test_that("LogNormal with unknown MULOG & TAULOG works", {
+test_that("LogNorm with unknown MULOG & TAULOG works", {
 
     update(M, nr_iter = 3*sims)
 

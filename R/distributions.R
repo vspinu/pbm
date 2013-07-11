@@ -6,8 +6,7 @@ pdMultivar <- mixin(
             if(ncol(ll) > 1L)
             stop.pbm(sprintf("ncol of ll (%s) in multivariate cells should be 1", ncol(ll))))
         ),
-    expr = quote(.lldim <- 1L), 
-    subtype = "multi")
+    expr = quote(.lldim <- 1L))
 
 
 ### Dirichlet
@@ -31,7 +30,7 @@ dirichlet_rng <- function(n, alpha){
 ## rowMeans(rng, dims = 2)
 ## mt/rowSums(mt)
 
-pdDirichlet <- mixin(
+pdDirich <- mixin(
     setFields = list(multiparnames = "theta"),
     setForms = list(
         set.ll = form(
@@ -56,7 +55,7 @@ pdDirichlet <- mixin(
                                  parents[[1]][["varsize"]], varsize))
             })),
     parentMixins = pdMultivar,
-    subtype = "Dirichlet")
+    subtype = "Dirich")
 
 pdDirichlet_conj <- mixin(
     setForms = list(
@@ -70,11 +69,10 @@ pdDirichlet_conj <- mixin(
         init.M.validate.child_type = form(
             if(!protoIs(child, "Categorical"))
             stop.pbm("Child of '", .type, "' should be of type 'Categorical'"))),
-    parentMixins = pdDirichlet,
+    parentMixins = pdDirich,
     subtype = "conj")
 
-PBM$initCells(defBC(type = "ddirich",
-                    prototype = "conj.uc",
+PBM$initCells(defBC(type = "pd", prototype = "conj.uc",
                     mixin = pdDirichlet_conj))
 
 
@@ -112,16 +110,15 @@ pdCategorical <- mixin(
     initFields = list(N = 1),
     subtype = "Categorical")
 
-PBM$initCells(defBC(type = "dcat",
+PBM$initCells(defBC(type = "pd",
                     prototype = "discr.unif",
                     mixin = pdCategorical))
 
 
-### Normal
-pdNormal <- mixin(
+### Norm
+pdNorm <- mixin(
     setForms = list(
         set.ll = form(
-            nrll <<- nrll + 1L, 
             ll[] <- dnorm(st,
                           mean = PV("mean"),
                           sd=1/sqrt(PV("tau")),
@@ -132,11 +129,10 @@ pdNormal <- mixin(
                           sd = 1/sqrt(PV("tau"))))),
     setFields = list(
         parnames = c("mean", "tau")),
-    subtype = "Normal")
+    subtype = "Norm")
 
-PBM$initCells(defBC(type = "dnorm",
-                    prototype = "norm.MHrw.acrej.uc",
-                    mixin = pdNormal))
+PBM$initCells(defBC(type = "pd", mixin = pdNorm, 
+                    prototype = "norm.mhrw.acrej.uc"))
 
 
 
@@ -156,13 +152,13 @@ pdGamma <- mixin(
         parnames = c("shape", "rate")),
     subtype = "Gamma")
 
-PBM$initCells(defBC(type = "dgamma",
-                    prototype = "lnorm.MHrw.acrej.uc",
-                    mixin = pdGamma))
+PBM$initCells(defBC(type = "pd", mixin = pdGamma,
+                    prototype = "norm.mhrw.acrej.uc",
+                    mhtr = tExp))
 
 
 ###_ LogNorm
-pdLogNormal <- mixin(
+pdLogNorm <- mixin(
     setForms = list(
         set.ll = form(
             nrll <<- nrll + 1L, 
@@ -176,15 +172,15 @@ pdLogNormal <- mixin(
                            sdlog = 1/sqrt(PV("taulog"))))),
     setFields = list(
         parnames = c("meanlog", "taulog")),
-    subtype = "LogNormal")
+    subtype = "LogNorm")
 
-PBM$initCells(defBC(type = "dlnorm",
-                    prototype = "lnorm.MHrw.acrej.uc",
-                    mixin = pdLogNormal))
+PBM$initCells(defBC(type = "pd", mixin = pdLogNorm,
+                    prototype = "norm.mhrw.acrej.uc",
+                    mhtr = tExp))
 
 
 ### GaNorm conjugate
-pdGaNormal <- mixin(
+pdGaNorm <- mixin(
     setFields = list(
         var = c(mu=0, tau=1),
         parnames = c("mu0", "n0", "alpha0", "beta0"),
@@ -232,23 +228,21 @@ pdGaNormal <- mixin(
             }}), 
         init.R.validate.child = form(
             if(length(children) != 1L){
-                stop.pbm("conjugate GaNormal cell accepts only one child; supplied ", length(children))
+                stop.pbm("conjugate GaNorm cell accepts only one child; supplied ", length(children))
             }, 
             if(!protoIs(children[[1L]], "dnorm")){
-                stop.pbm("child of conjugate GaNormal cell must be of type dnorm")
+                stop.pbm("child of conjugate GaNorm cell must be of type dnorm")
             })),
     expr = expression(chITR <- identity), 
-    subtype = "GaNormal")
+    subtype = "GaNorm")
 
-PBM$initCells(defBC(type = "dganorm",
-                    prototype = "conj.uc",
-                    mixin = pdGaNormal))
+PBM$initCells(defBC(type = "pd", prototype = "conj.uc", mixin = pdGaNorm))
 
 
 
 ### LogGaNorm conjugate
 ## fixme: this should rely on mixin inheritance rather than cell inheritance
-pdLogGaNormal <- mixin(setFields = list(
+pdLogGaNorm <- mixin(setFields = list(
                            var = c( meanlog=0, taulog=1),
                            lldim = 1L), 
                        expr = expression({
@@ -258,16 +252,14 @@ pdLogGaNormal <- mixin(setFields = list(
                            protocol$st <- list(dim = c(NA, 2L),
                                                dimnames = list(NULL, c("taulog", "meanlog")))
                        }), 
-                       subtype = "LogGaNormal")
+                       subtype = "LogGaNorm")
 
-PBM$initCells(defBC(type = "log",
-                    prototype = "dganorm",
-                    mixin = pdLogGaNormal))
+PBM$initCells(defBC(type = "pd", prototype = "pd(GaNorm)", mixin = pdLogGaNorm))
 
 
 
 ## ###_    * Unif
-## PBM$initCells(defBC(type = "Unif", prototype = "unif.MHrw.acrej.uc",
+## PBM$initCells(defBC(type = "Unif", prototype = "unif.mhrw.acrej.uc",
 ##                     setForms = list(
 ##                         set.ll = quote(
 ##                             ll[] <- dunif(st,

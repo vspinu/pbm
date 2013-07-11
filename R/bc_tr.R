@@ -16,13 +16,13 @@ PBM$initCells(defBC(type = "tr", prototype = "*",
                     initForms = list(
                         init.R.build.st = form(e(init.M.build.st))), 
                     setForms = list(
-                        set.st = form(st[] <- do.call(tr@TR, lapply(seq_along(parents), pst))),
-                        set.ll = form(ll[] <- tr@LL(st)),
+                        set.st = form(st[] <- do.call(st_tr@TR, lapply(seq_along(parents), pst))),
+                        set.ll = form(ll[] <- st_tr@LL(st)),
                         set.rand.st = form(e(set.st)),
                         init.M.build.st = form({
                             ## preclude the transform from droping dimensions 
                             .fields$st <- pst(1)
-                            st[] <- tr@TR(st)
+                            st[] <- st_tr@TR(st)
                         })),
                     setMethods = list(
                         .get.ll =

@@ -32,8 +32,10 @@ PBM$initCells(defBC(type = "acrej", prototype="uc",
 
 ### MHRW (random walk)
 
-PBM$initCells(defBC(type = "MHrw",
+PBM$initCells(defBC(type = "mhrw",
                     prototype = "acrej.uc",
+                    initFields = list(
+                        mhtr = tIdentity), 
                     setForms = list(
                         set.st = form({
                             e(update.ll);	 .update.ll(children)
@@ -68,27 +70,27 @@ PBM$initCells(defBC(type = "MHrw",
                             stop.pbm(" set.alphas is not specified."))
                         )))
 
-PBM$initCells(defBC(type = "norm", prototype="MHrw.acrej.uc",
+PBM$initCells(defBC(type = "norm", prototype="mhrw.acrej.uc",
                     setForms = list(
                         set.st_proposal = form(
-                            st[] <- TR(ITR(`_st`) + c(rnorm(length(st)) * scale))),
+                            st[] <- mhtr@TR(mhtr@ITR(`_st`) + c(rnorm(length(st)) * scale))),
                         set.alphas = form({
-                            ## instr_lratios <- rowSums(log(st)-log(`_st`))
-                            alphas <- exp(ll_all  - `_ll_all`)
+                            alphas <- exp((ll_all - mhtr@LL(st))  -
+                                          (`_ll_all` - mhtr@LL(`_st`)))
                         })),
                     expr = expression(TR <- identity, ITR <- identity)))
 
-PBM$initCells(defBC(type = "lnorm", prototype="MHrw.acrej.uc",
-                    setForms = list(
-                        set.st_proposal = form(
-                            st[] <- exp(log(`_st`) + c(rnorm(length(st)) * scale))),
-                        set.alphas = form({
-                            instr_lratios <- rowSums(log(st)-log(`_st`))
-                            alphas <- exp(ll_all  - `_ll_all` + instr_lratios)
-                        }))))
+## PBM$initCells(defBC(type = "lnorm", prototype="mhrw.acrej.uc",
+##                     setForms = list(
+##                         set.st_proposal = form(
+##                             st[] <- exp(log(`_st`) + c(rnorm(length(st)) * scale))),
+##                         set.alphas = form({
+##                             instr_lratios <- rowSums(log(st)-log(`_st`))
+##                             alphas <- exp(ll_all  - `_ll_all` + instr_lratios)
+##                         }))))
 
 ###_   + unif
-PBM$initCells(defBC(type = "unif", prototype="MHrw.acrej.uc",
+PBM$initCells(defBC(type = "unif", prototype="mhrw.acrej.uc",
                     initFields = list(min = 0, max = 1), ## these are not distr parameters, but sampler parameters
                     initForms = list(
                         init.R.build_min_max = form({
@@ -103,7 +105,7 @@ PBM$initCells(defBC(type = "unif", prototype="MHrw.acrej.uc",
                         }))))
 
 ###_   + unif discrete
-PBM$initCells(defBC(type = "discr", prototype="unif.MHrw.acrej.uc",
+PBM$initCells(defBC(type = "discr", prototype="unif.mhrw.acrej.uc",
                     setForms = list(
                         set.st_proposal = form(
                             for(i in 1:varsize){
