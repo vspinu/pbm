@@ -6,3 +6,5 @@
 etc/jags*
 etc/refs*
 R/TAGS
+*.o
+*.so

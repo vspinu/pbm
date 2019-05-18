@@ -12,8 +12,7 @@ Imports: Rcpp
 Depends:
   methods,
   coda,
-  abind,
-  protoClasses
+  abind
 Collate:
   "utils.R"
   "fields.R"
