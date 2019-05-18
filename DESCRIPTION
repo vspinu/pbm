@@ -11,7 +11,9 @@ LinkingTo: Rcpp
 Imports: Rcpp
 Depends:
   methods,
-  coda
+  coda,
+  abind,
+  protoClasses
 Collate:
   "utils.R"
   "fields.R"
