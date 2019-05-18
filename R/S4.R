@@ -9,7 +9,7 @@ setClass("bCellContainer", representation(sims = "namedList", is_mirror = "logic
 
 instantiate_parents <- function(parents, homeContext = NULL){
     ## parents is a list of parents defenitions
-    ## RETURN: list of parents (cells!!), ixs and ixs_dim all with the same names
+    ## RETURN: list of parents (cells!!), cixs and cixs_dim all with the same names
 
     if(any((not_P <- !(sapply(parents, class) %in% c("parentDefinition", "character")))))
         stop("parents arg should contain objects of class 'parentDefinition' or 'character' only")
@@ -73,7 +73,7 @@ instantiate_parents <- function(parents, homeContext = NULL){
 
 instantiate_children <- function(children, homeContext = NULL){
     ## children is a character vector of already instantiated cells
-    ## RETURN: list of children (cells!!), ixs and ixs_dim all with the same names
+    ## RETURN: list of children (cells!!)
     out <- list()
 
     if(any((not_C <- sapply(children, class)) != "character"))
@@ -158,8 +158,6 @@ setMethod("show", "BC",
                   print(object$ll)
               cat("\n ixs: ")
               str(object$ixs)
-              ## cat(" ixs_dim: ")
-              ## str(object$ixs_dim)
           })
 
 
@@ -370,6 +368,13 @@ setMethod("initialize", "BC",
                   for(nm in c(".pst", ".PST", ".pv", ".PV"))
                       assign(nm, list(), .self)
 
+                  ## API: pix is an extractor of the "parent incex". The call
+                  ## can take two forms, either pix(vname) or pix(pname). In the
+                  ## first case it is the index of the variable in the child's
+                  ## node (see .assign_pv_maybe, .assign_pix_maybe and
+                  ## .assign_pv_paired_maybe in utils.R for how this names are
+                  ## generated). The second, is the name of the parent node. The
+                  ## .pix_v and .pix_p hold the retrival expressions.
                   pix <-
                       eval(substitute(
                           function(v, p){
@@ -378,10 +383,10 @@ setMethod("initialize", "BC",
                           }, list(vname = as.name(".pix_v"), 
                                   pname = as.name(".pix_p"))))
                   
-                  pst <- function(p) e(.pst[[p]])
-                  PST <- function(p) e(.PST[[p]])
-                  pv <- function(v) e(.pv[[v]])
-                  PV <- function(v) e(.PV[[v]])
+                  pst <- function(p) e(.pst[[p]]) ## parent state
+                  PST <- function(p) e(.PST[[p]]) ## parent state expanded by parent index
+                  pv <- function(v) e(.pv[[v]]) ## parent variable (aka column of parent state)
+                  PV <- function(v) e(.PV[[v]]) ## parent variable expanded by parent index
                   ## fixme: .parent should be .pcells, pcell should be parent, parents should be pcells
                   pcell <- function(v) e(.parent[[v]])
               })
@@ -439,7 +444,7 @@ setMethod("initialize", "BC",
               }
 
               ## only at the end
-              .mixin(mixin, .Object,  initMethods = initMethods,
+              protoClasses:::.mixin(mixin, .Object,  initMethods = initMethods,
                      initFields = initFields, initForms = initForms,
                      setMethods = setMethods, setFields = setFields,
                      setForms = setForms, expr = expr)

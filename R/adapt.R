@@ -3,7 +3,7 @@ adRoot <- mixin(
         do.adapt = TRUE,
         adapt_sims = 1000L),
     initForms = list(
-        update.adapt = form(
+        UPDATE.main.adapt = form(
             if(do.adapt) e(adapt))))
 
 adHST <- mixin(
@@ -15,12 +15,13 @@ adHST <- mixin(
     ## (12): 343-373. doi:10.1007/s11222-008-9110-y
     ## http://www.springerlink.com/content/979087678366r78v/.
     initFields = list(
-        abeta = 1, ## todo: make a check of beta > 0
-        aalpha = .5, ## todo: make a check for alpha \in (0, 1])
-        do.ad.group_scale = TRUE,
+        ## "scale" field is already defined
+        abeta = 1, # todo: make a check of beta > 0
+        aalpha = .5, # todo: make a check for alpha \in (0, 1])
+        do.group_scale = TRUE, # whether to compute scale per parent ix
         do.mc_scale = FALSE,
         mc_scale = array(double()), 
-        sig_scale = 1), 
+        dilate_scale = 1), # multiplicative factor to adjust scale 
     initForms = list(
         init.M.build.ad = form(
             st = form({
@@ -51,7 +52,7 @@ adHST <- mixin(
                     attr(mc_scale, "prev_size") <- ._prev_size
                 }})),
         set.ad = form(
-            st = form(ast <- TR(st)),
+            st = form(ast <- mh_tr@ITR(st)),
             gamma = form(agamma <- abeta/.N^aalpha),
             mu = form({
                 amu <- amu + agamma*(ast - amu)
@@ -61,10 +62,10 @@ adHST <- mixin(
             }),
             scale = form({
                 scale <-
-                    if(do.ad.group_scale)
-                        sqrt(rowsum(c((sig_scale*alambda)*asigma + aoffset), aix)/anr_gr_ix)[aix]
+                    if(do.group_scale)
+                        sqrt(rowsum(c((dilate_scale*alambda)*asigma + aoffset), aix)/anr_gr_ix)[aix]
                     else
-                        sqrt(c(alambda*asigma + aoffset))
+                        sqrt(c((dilate_scale*alambda)*asigma + aoffset))
             })),
         adapt = form({
             e(set.ad.st)

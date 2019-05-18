@@ -59,7 +59,7 @@ root$initFields(subtype = "",
                 children = protoField(.field.children),
                 parents = protoField(.field.parents),
                 ixs = list(),
-                ixs_dim = list(),
+                ixs_dim = list(), ## fixme: readonly?
                 protocol = list(),
                 foldable_objects = character(),
                 ## fix = integer(),
@@ -312,7 +312,9 @@ root$initForms(update = form(
                                browser()
                            })),
                    main = form(
-                       doc = "Main routine executed during the update. By default consists of st, ll, mc_st and mc_ll components.", 
+                       doc =
+                       "Main routine executed during the update.
+By default consists of st, ll, mc_st and mc_ll forms.", 
                        st = form(
                            if(do.st){
                                e(update.st)

@@ -111,7 +111,7 @@ d_build.ixs <- form({
                 ## API: when nor cix, nor cix_dim are givven, but parent size is 1, replicate 1
                 ixs[[i]] <- 1L
             else
-                stop.pbm(sprintf("cix (%s) was not supplied, nor ix_dim", i))
+                stop.pbm(sprintf("Cannot infer ixs_dim[[\"%s\"]]. Please suplly 'cix' or 'cix_dim' in the constructor of parent '%s'.", i, i))
 
         if(!is.language(ixs[[i]])){
             ## if ixs_dim is given replicate along oposite dimmension

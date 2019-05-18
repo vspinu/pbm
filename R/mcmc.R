@@ -5,7 +5,7 @@ pbmmc <- function (data = NA, start = 1, end = NULL, thin = 1)
     if (is.array(data)) {
         if (length(dim(data)) > 3L) {
             stop("arrays with more than 3 dimmensions are not supported")
-        }else if (length(dim(data)) == 3){
+        } else if (length(dim(data)) == 3){
             pbm_class <- "pbmmc2d"
             orig.dim <- dim(data)
             orig.dn <- dimnames(data)

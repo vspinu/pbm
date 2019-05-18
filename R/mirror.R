@@ -4,7 +4,7 @@ map_over_model_cells <- function(.cells, func, ...){
     m_names <- leafNames(.cells)
     model_cells <- lapply(m_names, get, envir = .cells)
     out <- lapply(model_cells, func, ...)
-    names(out) <- m_names
+    names(out) <- unlist(lapply(model_cells, .getType))
     invisible(out)
 }
 

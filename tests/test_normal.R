@@ -12,7 +12,7 @@ burnin <- 1:500
 test_that("Normal with know TAU",{ 
 
     M <- pbm("Normal",
-             DATA = defBC("dc.", mixin = pdNorm, 
+             DATA = defBC("dc", mixin = pdNorm, 
                  st = Y, 
                  mu = defP("pd(Norm)",
                      cix = 1, size = 1, scale = .1, 
@@ -31,7 +31,7 @@ test_that("Normal with know TAU",{
 test_that("Normal with know MU",{
 
     M <- pbm("Normal",
-             DATA = defBC("dc.", mixin = pdNorm, st = Y,
+             DATA = defBC("dc", mixin = pdNorm, st = Y,
                  mu =
                  defP("hc", cix = 1, st = mu),
                  tau =
@@ -50,7 +50,7 @@ test_that("Normal with know MU",{
 test_that("Normal with unknown MU and TAU",{
 
     M <- pbm("Normal",
-             DATA = defBC("dc.", mixin = pdNorm, 
+             DATA = defBC("dc", mixin = pdNorm, 
                  st = Y, 
                  mu = defP("pd(Norm)",
                      cix = 1, size = 1, scale = .1, 

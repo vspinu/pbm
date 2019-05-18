@@ -63,7 +63,9 @@ setMethod("update", "PBM",
 
                   ## only .UP cells!! ressetign st_is_old in TR cells induces
                   ## updating of ST -> updating of LL
-                  for(bc in .UP) evalq({e(set.st_is_old)}, envir = bc)
+                  for(bc in .UP){
+                      evalq({e(set.st_is_old)}, envir = bc)  
+                  } 
                   for(bc in .UP) evalq(e(UPDATE), envir=bc)
                   
                   for(.T in iter_along_thin){
@@ -130,7 +132,8 @@ setMethod("update", "PBM",
     HCs <- model_cells[sapply(model_cells, protoIs, "hc.*")]
     unames <- unlist(lapply(HCs, .get_cell_chain), use.names = F)
     unames <- unames[!duplicated(unames)]
-    if(length(td <- setdiff(unames, names(model_cells))))
+    mnames <- unlist(lapply(model_cells, .getType))
+    if(length(td <- setdiff(unames, mnames)))
         stop("oups, non model cells are reachable from hyper cells:",
              paste(td, sep = ", "))
 

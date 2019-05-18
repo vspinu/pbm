@@ -38,7 +38,12 @@ PBM$initFields(mirror = protoField(.field.current_mirror),
                mirrors = protoReadOnlyField("mirrors"),
                ## mirrors_train = protoReadOnlyField("mirrors_train"),
                ## mirrors_test = protoReadOnlyField("mirrors_test"),
-               folds_names = protoReadOnlyField("folds_names"))
+               folds_names = protoReadOnlyField("folds_names"), 
+               N = protoField(function(x){
+                   if(missing(x))
+                       get(".N", envir = get("*", .cells))
+                   else stop("N fields is read only")
+               }))
 
 PBM$initMethods(getLL =
                 function(sum = FALSE, mc = FALSE){

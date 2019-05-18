@@ -8,7 +8,6 @@ PBM$initCells(defBC(type = "hc", prototype="*",
                         do.st = FALSE, 
                         do.ll = FALSE,
                         do.mc_ll = FALSE,
-                        do.mc_ll = FALSE,
                         do.pc_st = FALSE,
                         do.pc_ll = FALSE),
                     initForms = list(
@@ -59,6 +58,6 @@ PBM$initCells(defBC(type = "uc", prototype = "*"))
 ###_ + CONJ  (conjugate cells)
 PBM$initCells(defBC(type = "conj", prototype = "uc",
                     initForms = list(
-                        init.R.build_chITR = form(
-                            chITR <- children[["i"]]$ITR),
+                        ## init.R.build_chITR = form(
+                        ##     chITR <- children[["i"]]$ITR),
                         init.M.validate.child_type = form())))

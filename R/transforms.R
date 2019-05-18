@@ -14,6 +14,7 @@ protoTransform <- function(name = "identity",
 
 tIdentity <- protoTransform()
 
+## fixme: @LL should be changed into @ILL 
 tLog <- protoTransform("tLog",
                        TR = log,
                        ITR = exp,

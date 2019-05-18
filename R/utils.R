@@ -84,7 +84,7 @@ is_close_to <- function (object, label = NULL, tol = .005, ...)
     ## Assign .pv[["xxx]],  .PV[["xxx]] and .pixv[["xxx]]. For each 'xxx' in pars:
     ##
     ## If pv[["xxx"]] is already installed in .self, do nothing. Try hard to
-    ## associate varnames from parents to pv.mame forms. If xxx is found in
+    ## associate varnames from parents to pv.name forms. If xxx is found in
     ## parent's varnames, use it, otherwise, if no varnames found in parent,
     ## create those by side effect and give the first parent's variable name
     ## 'xxx'. Otherwise check for the first empty parent's varname "" and give
@@ -204,11 +204,10 @@ warn.pbm <- function(..., env = parent.frame()){
 
 
 ### MISC
-
 .get_model_cells <- function(.cells){
     m_names <- leafNames(.cells)
     model_cells <- lapply(m_names, get, envir = .cells)
-    names(model_cells) <- m_names
+    names(model_cells) <- unlist(lapply(model_cells, .getType))
     model_cells
 }
 

@@ -1,4 +1,5 @@
 context("LogNorm")
+
 sims <- 2000
 N <- 1000
 mulog <- 1
@@ -115,7 +116,7 @@ test_that("LogNorm with known MULOG (internal 1-to-1 transform)", {
     plot(M3$taulog$mc_st[-burnin], type = "l")
     mn3 <<- mean(M3$taulog$mc_st[-burnin])
     expect_close(mn1, mn3, .001)
-    expect_close(M1$taulog$rejects, M3$taulog$rejects, 30)
+    expect_close(M1$taulog$rejects, M3$taulog$rejects, 50)
     expect_close(mean(M3$taulog$mc_st[-burnin]), 1/var(log(Y)), .001)
 })
 

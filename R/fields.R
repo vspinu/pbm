@@ -112,7 +112,7 @@
             .self$size <- dim(st)[[1L]]
         }else{
             if(length(st) %% length(arg) != 0)
-                stop.pbm("Supplied vector cannot be evenly recycled to fit ST object")
+                stop.pbm("Supplied vector cannot be evenly recycled to fit into ST object")
             st[] <- arg
             assign("st", st, .self)
         }
@@ -187,6 +187,8 @@ You can control its size with LLDIM field.")
     if(missing(arg)){
         rownames(st)
     }else{
+        if( length(arg) !=  nrow(st) )
+            stop.pbm(sprintf("names length (%d) is not the same as the size of st (%d)", length(arg), nrow(st)))
         eval(substitute({
             rownames(st) <- nm
             rownames(ll) <- nm

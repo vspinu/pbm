@@ -75,10 +75,10 @@ PBM$initCells(defBC(type = "norm", prototype="mhrw.acrej.uc",
                         set.st_proposal = form(
                             st[] <- mh_tr@TR(mh_tr@ITR(`_st`) + c(rnorm(length(st)) * scale))),
                         set.alphas = form({
-                            alphas <- exp((ll_all - mh_tr@LL(st))  -
-                                          (`_ll_all` - mh_tr@LL(`_st`)))
-                        })),
-                    expr = expression(TR <- identity, ITR <- identity)))
+                            ## reminder: transforms are of the proposal not of the ll(st)!
+                            alphas <- exp((ll_all - fastRS(mh_tr@LL(st)))  -
+                                          (`_ll_all` - fastRS(mh_tr@LL(`_st`))))
+                        }))))
 
 ## PBM$initCells(defBC(type = "lnorm", prototype="mhrw.acrej.uc",
 ##                     setForms = list(
@@ -91,15 +91,16 @@ PBM$initCells(defBC(type = "norm", prototype="mhrw.acrej.uc",
 
 ###_   + unif
 PBM$initCells(defBC(type = "unif", prototype="mhrw.acrej.uc",
-                    initFields = list(min = 0, max = 1), ## these are not distr parameters, but sampler parameters
+                    ## these are sampler parameters, not distr parameters 
+                    initFields = list(rwMin = 0, rwMax = 1), 
                     initForms = list(
-                        init.R.build_min_max = form({
-                            min <- rep_len(min, length(st))
-                            max <- rep_len(max, length(st))
+                        init.R.build_rwMin_rwMax = form({
+                            rwMin <- rep_len(rwMin, length(st))
+                            rwMax <- rep_len(rwMax, length(st))
                         })),
                     setForms = list(
                         set.st_proposal = form(
-                            st[] <- runif(size, min = min, max = max)),
+                            st[] <- runif(size, min = rwMin, max = rwMax)),
                         set.alphas = form({
                             alphas <- exp(ll_all  - `_ll_all`)
                         }))))
@@ -108,7 +109,7 @@ PBM$initCells(defBC(type = "unif", prototype="mhrw.acrej.uc",
 PBM$initCells(defBC(type = "discr", prototype="unif.mhrw.acrej.uc",
                     setForms = list(
                         set.st_proposal = form(
-                            for(i in 1:varsize){
-                                        #fixme: min is a vector like ix?
-                                st[, i] <- sample(min[i]:max[i], size, replace = TRUE)
-                            }))))
+                            ## fixme: rwMin, rwMax are vectors like ix
+                            ## because sample() is not vectorized we are stuck
+                            st[] <- rdunif(rwMin, rwMax)
+                        ))))
